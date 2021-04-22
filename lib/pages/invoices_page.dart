@@ -1,0 +1,114 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:sales_force/models/invoice.dart';
+import 'package:sales_force/models/json_elements.dart';
+import 'package:sales_force/pages/invoice_payment_page.dart';
+import 'package:sales_force/sql/dal.dart';
+import 'package:sales_force/shared/app_theme.dart';
+
+class Invoices extends StatefulWidget {
+  @override
+  _InvoicesState createState() => _InvoicesState();
+}
+
+class _InvoicesState extends State<Invoices> {
+  List<Invoice> invoices = [];
+
+  @override
+  Widget build(BuildContext context) {
+    if (invoices.length == 0) invoices.addAll(DAL.staticInvoices);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("INVOICES"),
+        ),
+        body: Container(
+          // decoration: BoxDecoration(
+          //     image: DecorationImage(
+          //         image: AssetImage(AppTheme.backgroundImage),
+          //         repeat: ImageRepeat.repeat)),
+          color: AppTheme.backgroundColor,
+          child: ListView(
+              children: ListTile.divideTiles(
+                      tiles: invoiceView(),
+                      context: context,
+                      color: Colors.grey)
+                  .toList()),
+        ));
+  }
+
+  List<Widget> invoiceView() {
+    try {
+      List<Widget> widgets = [];
+      for (Invoice value in invoices) {
+        double invoiceAmount = double.parse(value.totalAmount);
+        double paidAmount = double.parse(value.paidAmount);
+        Widget widget;
+        if (invoiceAmount == paidAmount)
+          widget = RaisedButton(
+            child: AppTheme.text(text: 'PAID', color: Colors.blue),
+            color: Colors.white,
+            onPressed: () => false,
+          );
+        else
+          widget = AppTheme.rectangleRaisedButton(
+              text: 'PAY', onPressed: () async => onTap(value));
+        widgets.add(Card(
+            color: Colors.white,
+            child: ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                isThreeLine: true,
+                title:
+                    AppTheme.text(text: '${value.customerName}', fontSize: 20),
+                subtitle: AppTheme.text(
+                    text: '${value.invoiceNumber}\n${value.amount}',
+                    fontSize: 20),
+                trailing: widget)));
+      }
+      if (widgets.length == 0)
+        widgets.add(Card(
+          color: Colors.white,
+          child: ListTile(
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              isThreeLine: true,
+              title: AppTheme.text(text: 'No Invoies', fontSize: 20),
+              subtitle: AppTheme.text(
+                  text: 'There are no invoices to display.', fontSize: 20),
+              trailing: Icon(
+                Icons.info_outline,
+                color: Colors.blue,
+              )),
+        ));
+      return widgets;
+    } catch (e) {
+      List<Widget> widgets = [];
+
+      widgets.add(Card(
+        child: Text(e.toString()),
+      ));
+      return widgets;
+    }
+  }
+
+  onTap(Invoice invoice) {
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+            builder: (context) => new InvoicePayment(
+                invoice: new JSONInvoice(
+                    androidPaymentId: invoice.invoiceId,
+                    paymentUserId: invoice.userId,
+                    paymentOrderId: invoice.orderId,
+                    paymentInvoiceId: invoice.invoiceId,
+                    paymentCustomerId: invoice.customerId,
+                    paymentAmount: invoice.amount,
+                    customerName: invoice.customerName,
+                    invoiceNumber: invoice.invoiceNumber,
+                    date: invoice.date,
+                    amountReceived: '',
+                    discount: invoice.discount,
+                    totalAmount: invoice.totalAmount,
+                    paidAmount: invoice.paidAmount))));
+  }
+}
