@@ -19,6 +19,7 @@ class Config {
   static String putTrackingAPILink =
       apiPrefix + 'api.php?action=put&module=tracking&user=${user.userId}';
   static String syncAPILink = apiPrefix + 'api.php?action=sync&createdon=';
+  static String createCustomerAPILink = apiPrefix + 'api.php?action=put&module=customer&user=${user.userId}';
 
   static const int ServiceCycleDelay = 10; // seconds
   static const int SplashTimeOut = 5; // seconds

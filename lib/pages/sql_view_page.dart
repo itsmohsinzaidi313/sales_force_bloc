@@ -33,7 +33,12 @@ class _SqlViewPageState extends State<SqlViewPage> {
                 ListTile(
                   title: TextField(
                     controller: _textEditingController1,
-                    decoration: InputDecoration(labelText: 'Query'),
+                    decoration: InputDecoration(
+                        labelText: 'Query',
+                        errorText: _textEditingController1.text == ''
+                            ? 'Required'
+                            : null),
+                    onChanged: (value) => setState(() {}),
                   ),
                   leading: IconButton(
                     icon: Icon(
@@ -42,8 +47,15 @@ class _SqlViewPageState extends State<SqlViewPage> {
                     ),
                     onPressed: () async {
                       Database db = await Config.database;
-                      List<Map<String, dynamic>> values =
-                          await db.rawQuery(_textEditingController1.text);
+                      List<Map<String, dynamic>> values;
+                      try {
+                        values =
+                            await db.rawQuery(_textEditingController1.text);
+                      } catch (e) {
+                        values = [
+                          {'Error': e.toString()}
+                        ];
+                      }
                       result = values;
                       columns = [];
                       rows = [];
@@ -88,7 +100,12 @@ class _SqlViewPageState extends State<SqlViewPage> {
                 ListTile(
                   title: TextField(
                     controller: _textEditingController2,
-                    decoration: InputDecoration(labelText: 'Query'),
+                    decoration: InputDecoration(
+                        labelText: 'Query',
+                        errorText: _textEditingController2.text == ''
+                            ? 'Required'
+                            : null),
+                    onChanged: (value) => setState(() {}),
                   ),
                   leading: IconButton(
                     icon: Icon(
@@ -96,9 +113,16 @@ class _SqlViewPageState extends State<SqlViewPage> {
                       color: Colors.red,
                     ),
                     onPressed: () async {
-                      Database db = await  Config.database;
-                      List<Map<String, dynamic>> values =
-                          await db.rawQuery(_textEditingController2.text);
+                      Database db = await Config.database;
+                      List<Map<String, dynamic>> values;
+                      try {
+                        values =
+                            await db.rawQuery(_textEditingController2.text);
+                      } catch (e) {
+                        values = [
+                          {'Error': e.toString()}
+                        ];
+                      }
                       result = values;
                       columns = [];
                       rows = [];

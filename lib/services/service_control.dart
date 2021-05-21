@@ -1,7 +1,7 @@
 import 'dart:developer';
 
+import 'package:sales_force/services/customer_service.dart';
 import 'package:sales_force/services/service_common.dart';
-import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/services/invoice_service.dart';
 import 'package:sales_force/services/location_service.dart';
 import 'package:sales_force/services/orders_service.dart';
@@ -15,16 +15,18 @@ class ServiceControl {
   SPostLocation locationService;
   SPostVisit visitService;
   SSyncService syncService;
+  SUploadCustomer customerService;
   static ServiceControl control = ServiceControl._internal();
   ServiceControl._internal();
 
   void initializeDatabaseDependent({Database database}) async {
     try {
-      this.invoiceService = new SPostInvoice(database);
-      this.orderService = new SPostOrder(database);
-      this.visitService = new SPostVisit(database);
-      this.syncService = new SSyncService(database);
-      this.locationService = new SPostLocation(database);
+      this.invoiceService = SPostInvoice(database);
+      this.orderService = SPostOrder(database);
+      this.visitService = SPostVisit(database);
+      this.syncService = SSyncService(database);
+      this.locationService = SPostLocation(database);
+      this.customerService = SUploadCustomer(database);
     } catch (e) {
       log('ERROR ON DATABASE DEPENDENT SERVICES', error: e);
     }
@@ -40,7 +42,9 @@ class ServiceControl {
       status = visitService.status();
     else if (name == syncService.name)
       status = syncService.status();
-    else if (name == invoiceService.name) status = invoiceService.status();
+    else if (name == invoiceService.name)
+      status = invoiceService.status();
+    else if (name == customerService.name) status = customerService.status();
     return status;
   }
 
@@ -53,7 +57,11 @@ class ServiceControl {
       visitService.setStatus(status);
     else if (name == syncService.name) {
       syncService.setStatus(status);
-    } else if (name == invoiceService.name) invoiceService.setStatus(status);
+    } else if (name == invoiceService.name) {
+      invoiceService.setStatus(status);
+    } else if (name == customerService.name) {
+      customerService.setStatus(status);
+    }
   }
 
   List<ServiceCommon> getList() {
@@ -63,6 +71,7 @@ class ServiceControl {
       invoiceService,
       orderService,
       locationService,
+      customerService,
     ];
   }
 
@@ -72,6 +81,7 @@ class ServiceControl {
     invoiceService.start();
     visitService.start();
     syncService.start();
+    customerService.start();
   }
 
   void stopAllService() {
@@ -80,5 +90,6 @@ class ServiceControl {
     invoiceService.stop();
     visitService.stop();
     syncService.stop();
+    customerService.stop();
   }
 }

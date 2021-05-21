@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/constants.dart';
@@ -109,224 +110,18 @@ class MenuPage extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: MediaQuery.of(context).size.width * 0.05,
               mainAxisSpacing: MediaQuery.of(context).size.height * 0.05,
-              children: getDashboardButtons2(context),
+              children: getDashboardButtons(context),
             ),
           ),
         ));
   }
 
-  List<Widget> getDashboardButtons() {
-    try {
-      double buttonLabelFontSize = 14.0;
-      List<Widget> list = [
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () => onNewSalePressed,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Image(
-                    image: AssetImage('images/newSale2.png'),
-                  ),
-                ),
-                AutoSizeText(
-                  'NEW SALE',
-                  style: TextStyle(
-                      color: Colors.black, fontSize: buttonLabelFontSize),
-                ),
-              ],
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Image(
-                    image: AssetImage('images/viewSale.png'),
-                  ),
-                ),
-                Text(
-                  'VIEW SALE',
-                  style: TextStyle(
-                      color: Colors.black, fontSize: buttonLabelFontSize),
-                ),
-              ],
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Image(
-                    image: AssetImage('images/viewInvoices.png'),
-                  ),
-                ),
-                AutoSizeText(
-                  'INVOICES',
-                  style: TextStyle(
-                      color: Colors.black, fontSize: buttonLabelFontSize),
-                ),
-              ],
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Image(
-                    image: AssetImage('images/viewLocation.png'),
-                  ),
-                ),
-                AutoSizeText(
-                  'VIEW VISIT',
-                  style: TextStyle(
-                      color: Colors.black, fontSize: buttonLabelFontSize),
-                ),
-              ],
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () => onNewVisitsPressed,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Image(
-                    image: AssetImage('images/visits.png'),
-                  ),
-                ),
-                AutoSizeText(
-                  'NEW VISIT',
-                  style: TextStyle(
-                      color: Colors.black, fontSize: buttonLabelFontSize),
-                ),
-              ],
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Image(
-                    image: AssetImage('images/sync.png'),
-                  ),
-                ),
-                AutoSizeText(
-                  'SYNC',
-                  style: TextStyle(
-                      color: Colors.black, fontSize: buttonLabelFontSize),
-                ),
-              ],
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            elevation: MaterialStateProperty.all(4),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          onPressed: () {},
-          child: AppTheme.text(text: 'SQL'),
-        ),
-      ];
-
-      if (Config.user.userTypeId == '3') {
-        // list.removeLast();
-        return list;
-      } else if (Config.user.userTypeId == '4') {
-        list.removeRange(2, 6);
-        return list;
-      }
-      return list;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  List<Widget> getDashboardButtons2(BuildContext context) {
+  List<Widget> getDashboardButtons(BuildContext context) {
     try {
       Color redColor = Color.fromRGBO(251, 91, 57, 0.7);
       Color blueColor = Color.fromRGBO(145, 202, 245, 0.6);
-
       double iconSize = MediaQuery.of(context).size.width * 0.14;
+
       List<Widget> list = [
         AppTheme.roundIconButton(
           text: 'NEW SALE',
@@ -395,6 +190,14 @@ class MenuPage extends StatelessWidget {
             buttonColor: redColor,
             onPressed: () => onNewVisitsPressed(context)),
         AppTheme.roundIconButton(
+            text: 'NEW CUSTOMER',
+            textStyle:
+                TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            icon: Icon(Icons.person_add_alt_1, color: Colors.white),
+            iconSize: iconSize,
+            buttonColor: blueColor,
+            onPressed: () => createCustomer(context)),
+        AppTheme.roundIconButton(
             text: 'SYNC DATA',
             textStyle: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -442,7 +245,7 @@ class MenuPage extends StatelessWidget {
   static const String update = 'Update';
   static const List<String> choices = <String>[logout, settings, update];
 
-  choice(BuildContext context, String choice) async {
+  Future<void> choice(BuildContext context, String choice) async {
     if (choice == logout) {
       if (await Library.logout(Config.user.userId))
         Navigator.of(context)
@@ -450,5 +253,145 @@ class MenuPage extends StatelessWidget {
     } else if (choice == settings) {
       Navigator.of(context).pushNamed('/settings');
     } else if (choice == update) {}
+  }
+
+  void createCustomer(BuildContext context) {
+    String shopName, firstName, lastName, contact, address;
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: SingleChildScrollView(
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 5.0,
+                ),
+              ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            // height: Config.deviceDisplayHeight(context) * 0.6,
+            width: Config.deviceDisplayWidth(context) * 0.6,
+            child: Wrap(
+              children: <Widget>[
+                Container(
+                  color: Colors.blue,
+                  padding: EdgeInsets.all(8),
+                  child: Center(
+                    child: Text(
+                      'CREATE NEW CUSTOMER',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Shop Name',
+                          icon: Icon(Icons.business),
+                        ),
+                        onChanged: (value) => shopName = value,
+                      ),
+                      TextField(
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: 'Mobile #',
+                          icon: Icon(Icons.phone),
+                        ),
+                        onChanged: (value) => contact = value,
+                      ),
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'First Name',
+                          icon: Icon(Icons.person),
+                        ),
+                        onChanged: (value) => firstName = value,
+                      ),
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Last Name',
+                          icon: Icon(Icons.person),
+                        ),
+                        onChanged: (value) => lastName = value,
+                      ),
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Address',
+                          icon: Icon(Icons.business),
+                        ),
+                        onChanged: (value) => address = value,
+                      ),
+                    ],
+                  ),
+                ),
+                Center(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)))),
+                      child: Text(
+                        'Register',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      onPressed: () => onCreateCustomerPressed(
+                            shopName: shopName,
+                            firstName: firstName,
+                            lastName: lastName,
+                            contact: contact,
+                            address: address,
+                          )),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void onCreateCustomerPressed(
+      {String shopName,
+      String firstName,
+      String lastName,
+      String contact,
+      String address}) async {
+    if (shopName.isNotEmpty &&
+        firstName.isNotEmpty &&
+        contact.isNotEmpty &&
+        address.isNotEmpty) {
+      Position position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .timeout(
+              Duration(
+                seconds: 15,
+              ),
+              onTimeout: () => null);
+      if (position != null) {
+        try {
+          (await Config.database).insert('customer', {
+            'user_id': Config.user.userId,
+            'customer_first_name': firstName,
+            'customer_last_name': lastName,
+            'customer_mobile': contact,
+            'customer_shop_name': shopName,
+            'customer_address1': address,
+            'shop_lat': position.latitude.toString(),
+            'shop_long': position.longitude.toString(),
+            'status': '0'
+          });
+        } catch (e) {
+          log('Error', error: e);
+        }
+      }
+    }
   }
 }

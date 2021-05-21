@@ -103,10 +103,10 @@ class ImportData {
         TableCustomer.mobile: item['customer_mobile'],
         TableCustomer.shopName: item['customer_shop_name'],
         TableCustomer.address: item['customer_address1'],
-        TableCustomer.status: item['status'],
+        TableCustomer.status: item['status'] ?? '1',
         TableCustomer.discountType: item['discount_type'],
         TableCustomer.discount: item['discount'],
-        TableCustomer.creditLimit: item['credit_limit']
+        TableCustomer.creditLimit: item['credit_limit'],
       });
     }
   }
