@@ -4,7 +4,6 @@ import 'package:sales_force/bloc/order_payment_bloc/order_payment_bloc.dart';
 import 'package:sales_force/models/objects/customer_order.dart';
 import 'package:sales_force/models/objects/product.dart';
 import 'package:sales_force/shared/app_theme.dart';
-import 'package:sales_force/shared/config.dart';
 
 class OrderPaymenPage extends StatelessWidget {
   final double titleFontSize = 18;
@@ -121,13 +120,13 @@ class OrderPaymenPage extends StatelessWidget {
                   // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
-                      child: AppTheme.roundRaisedButton(
+                      child: AppTheme.roundElevatedButton(
                           text: 'Add Discount',
                           onPressed: () =>
                               showUserDiscountDialog(context, state)),
                     ),
                     Center(
-                      child: AppTheme.roundRaisedButton(
+                      child: AppTheme.roundElevatedButton(
                         text: 'Take Order',
                         onPressed: () => AppTheme.showAlertDialogYN(context,
                                 title: 'Attention', message: 'Are you sure?')

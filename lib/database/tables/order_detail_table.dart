@@ -4,7 +4,9 @@ import 'package:sqflite_common/sqlite_api.dart';
 
 class TableOrderDetail extends SqlCommons {
   TableOrderDetail(Database database, VerboseBloc bloc)
-      : super(tableName, columns, dataTypes, database, bloc);
+      : super(tableName, columns, dataTypes, database, bloc) {
+        skipDelete = true;
+      }
 
   static const String tableName = 'order_detail';
   static const String id = 'id',

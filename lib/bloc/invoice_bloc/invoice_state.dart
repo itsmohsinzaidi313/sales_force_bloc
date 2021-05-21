@@ -15,9 +15,19 @@ class PayInvoiceState extends InvoiceState {
   PayInvoiceState({this.invoice});
 }
 
+class ValidPaymentState extends InvoiceState {
+  final String value;
+  ValidPaymentState({this.value});
+}
+
 class InvalidPaymentState extends InvoiceState {
   final String message;
   InvalidPaymentState({this.message});
+}
+
+class ValidBankState extends InvoiceState {
+  final String value;
+  ValidBankState({this.value});
 }
 
 class InvalidBankState extends InvoiceState {
@@ -25,9 +35,19 @@ class InvalidBankState extends InvoiceState {
   InvalidBankState({this.message});
 }
 
+class ValidChequeNoState extends InvoiceState {
+  final String value;
+  ValidChequeNoState({this.value});
+}
+
 class InvalidChequeNoState extends InvoiceState {
   final String message;
   InvalidChequeNoState({this.message});
+}
+
+class ValidClearingDateEvent extends InvoiceState {
+  final String value;
+  ValidClearingDateEvent({this.value});
 }
 
 class InvalidClearingDateEvent extends InvoiceState {

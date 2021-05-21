@@ -37,18 +37,21 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           yield InvalidPaymentState(message: 'Invalid amount');
         } else {
           payment = event.payment.toString();
+          yield ValidPaymentState(value: event.payment.toString());
         }
       } else if (event is ChequeNoChanged) {
         if (event.chequeNo == '') {
           yield InvalidChequeNoState(message: 'Please enter cheque no');
         } else {
           chequeNo = event.chequeNo;
+          yield ValidChequeNoState();
         }
       } else if (event is BankChangedEvent) {
         if (event.bank == '') {
           yield InvalidBankState(message: 'Please enter bank name');
         } else {
           bank = event.bank;
+          yield ValidBankState();
         }
       } else if (event is PaymentTypeChanged) {
         paymentmode = event.paymentmode;
@@ -57,6 +60,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           yield InvalidClearingDateEvent(message: 'Please enter clearing date');
         } else {
           clearingDate = event.clearingDate;
+          yield ValidClearingDateEvent();
         }
       } else if (event is PayInvoicePressed) {
         if (paymentmode == PAYMENTMODE.CASH) {

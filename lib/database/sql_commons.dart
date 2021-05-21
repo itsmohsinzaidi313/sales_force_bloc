@@ -19,6 +19,8 @@ abstract class SqlCommons {
       this.database, this.bloc);
   List<String> dbColumns;
   List<String> dbColumnsDataTypes;
+  bool skipDelete = false;
+  bool skipDrop = false;
 
   Future<void> create() async {
     try {
@@ -38,18 +40,26 @@ abstract class SqlCommons {
   }
 
   Future<void> drop() async {
-    log('TABLE $dbTableName DROPPED', name: 'SqlCommons');
-    await database.execute('DROP TABLE IF EXISTS $dbTableName');
-    bloc.add(VerboseNewEvent(
-        title: 'SqlCommons', message: 'Table dropped $dbTableName'));
+    if (!skipDrop) {
+      log('TABLE $dbTableName DROPPED', name: 'SqlCommons');
+      await database.execute('DROP TABLE IF EXISTS $dbTableName');
+      bloc.add(VerboseNewEvent(
+          title: 'SqlCommons', message: 'Table dropped $dbTableName'));
+    } else {
+      log('TABLE $dbTableName DROP SKIPPED', name: 'SqlCommons');
+    }
   }
 
-  Future<int> deleteTable() async {
-    log('TABLE $dbTableName DELETED', name: 'SqlCommons');
-    int rowsAffected = await database.delete(dbTableName);
-    bloc.add(VerboseNewEvent(
-        title: 'SqlCommons', message: 'Table deleted $dbTableName'));
-    return rowsAffected;
+  Future<void> deleteTable() async {
+    if (!skipDelete) {
+      log('TABLE $dbTableName DELETED', name: 'SqlCommons');
+      int rowsAffected = await database.delete(dbTableName);
+      bloc.add(VerboseNewEvent(
+          title: 'SqlCommons', message: 'Table deleted $dbTableName'));
+      // return rowsAffected;
+    } else {
+      log('TABLE $dbTableName DELETE SKIPPED', name: 'SqlCommons');
+    }
   }
 
   bool verify() {

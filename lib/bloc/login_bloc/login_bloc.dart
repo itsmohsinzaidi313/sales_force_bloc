@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:sales_force/database/tables/categories_table.dart';
 import 'package:sales_force/database/tables/customer_table.dart';
+import 'package:sales_force/database/tables/invoices_table.dart';
 import 'package:sales_force/database/tables/products_table.dart';
 import 'package:sales_force/models/objects/user.dart';
 import 'package:sales_force/repositories/login_repository.dart';
@@ -41,12 +42,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         }
       } else if (event is LoginSubmit) {
         if (event.forceLogin) {
+          // TODO: FOR TESTING ONLY
+          (await Config.database)
+              .update(TableCustomer.tableName, {TableCustomer.userId: 1});
+          (await Config.database)
+              .update(TableProducts.tableName, {TableProducts.userId: 1});
+          (await Config.database)
+              .update(TableCategories.tableName, {TableCategories.userId: 1});
+          (await Config.database)
+              .update(TableInvoices.tableName, {TableInvoices.userId: 1});
           yield LoginSuccessful(message: 'Login successful');
         } else if (Config.user.email == '' || Config.user.password == '') {
           yield InvalidSubmission(message: 'Please check email and password');
         } else {
           User user = await LoginRepo.repo
               .login(Config.user.email, Config.user.password);
+          // TODO: FOR TESTING ONLY
           Config.user = user;
           if (user != null) {
             (await Config.database)
@@ -55,6 +66,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
                 .update(TableProducts.tableName, {TableProducts.userId: 1});
             (await Config.database)
                 .update(TableCategories.tableName, {TableCategories.userId: 1});
+            (await Config.database)
+                .update(TableInvoices.tableName, {TableInvoices.userId: 1});
             yield LoginSuccessful(message: 'Login successful');
           } else {
             yield LoginFailed(message: 'Invalid username or password');

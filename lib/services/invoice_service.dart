@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:sales_force/database/tables/paid_invoices_table.dart';
 import 'package:sales_force/shared/library.dart';
-import 'package:sales_force/services/common.dart';
+import 'package:sales_force/services/service_common.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../shared/config.dart';
@@ -15,7 +15,6 @@ class SPostInvoice extends ServiceCommon {
   @override
   Future<void> perform() async {
     cycleComplete = false;
-    log('INVOICE UPLOAD SERVICE RESPONDING');
     _uploadInvoices();
   }
 

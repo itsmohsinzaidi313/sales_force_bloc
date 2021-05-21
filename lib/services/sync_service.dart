@@ -19,7 +19,7 @@ import 'package:sales_force/models/objects/product.dart';
 import 'package:sales_force/models/objects/product_prices.dart';
 import 'package:sales_force/models/objects/sync_packet.dart';
 import 'package:sales_force/models/objects/user.dart';
-import 'package:sales_force/services/common.dart';
+import 'package:sales_force/services/service_common.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../shared/config.dart';
@@ -38,26 +38,20 @@ class SSyncService extends ServiceCommon {
   @override
   Future<void> perform() async {
     cycleComplete = false;
-    log('SYNC SERVICE RESPONDING');
-//    db
-//        .rawQuery("select * from sync_apis")
-//        .then((onValue) => print(onValue))
-//        .catchError((onError) => print(onError));
     if (await Library.hasServerAccess()) {
       await syncData();
-    } else {
-      cycleComplete = true;
     }
+    cycleComplete = true;
   }
 
-  Future<bool> getSyncData() async {
+  Future<bool> getSyncApis() async {
     DateTime dateTime = DateTime.now();
     dateTime = new DateTime(dateTime.year, dateTime.month, dateTime.day - 1);
     String url =
         '${Config.syncAPILink}${DateFormat('yyyy-MM-dd,HH:mm:ss').format(dateTime)}';
-    Response response =
-        await get(Uri.parse(url)).timeout(Duration(seconds: 10));
-    if (response.statusCode == 200) {
+    Response response = await get(Uri.parse(url))
+        .timeout(Duration(seconds: Config.ConnectionTimeout), onTimeout: () => null);
+    if (response != null && response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
       if (data['data'] != null) {
         (data['data'] as List<dynamic>).forEach((element) async {
@@ -87,15 +81,15 @@ class SSyncService extends ServiceCommon {
 
   Future<void> syncData() async {
     try {
-      await getSyncData();
+      await getSyncApis();
       List<SyncPacket> list = await getApis();
       list.forEach((e) async {
         Response response = await get(Uri.parse(e.url))
-            .timeout(Duration(seconds: 5), onTimeout: () {
+            .timeout(Duration(seconds: Config.ConnectionTimeout), onTimeout: () {
           log('CONNECTION TIMEOUT\nSYNC FAILED');
           return null;
         });
-        if (response != null) {
+        if (response != null && response.statusCode == 200) {
           Map<String, dynamic> data = jsonDecode(response.body);
           bool status = data['status'].toString().toUpperCase() == 'FAILED'
               ? false
@@ -147,21 +141,18 @@ class SSyncService extends ServiceCommon {
             }
           }
         } else {
-          log('NULL RESPONSE RECEIVED\nSYNC FAILED');
+          log('NO RESPONSE RECEIVED. STATUS CODE: ${response.statusCode}. SYNC FAILED');
         }
       });
-      cycleComplete = true;
     } catch (e) {
       log('ERROR ON SYNC SERVICE syncData', error: e);
-    } finally {
-      cycleComplete = true;
     }
   }
 
   Future<List<SyncPacket>> getApis() async =>
       (await db.query(TableSyncApis.tableName,
               where: '${TableSyncApis.isUsed} = ?', whereArgs: [0]))
-          .map((e) => SyncPacket.fromMap(e))
+          .map((e) => SyncPacket.fromDb(e))
           .toList();
 
   Future<void> insertInvoice(

@@ -12,6 +12,30 @@ class VerboseBloc extends Bloc<VerboseEvent, VerboseState> {
   Stream<VerboseState> mapEventToState(
     VerboseEvent event,
   ) async* {
-    yield VerboseInitial(title: event.title, message: event.message);
+    yield VerboseInitial(
+        title: event.title,
+        message: event.message,
+        value: getValues(event.message));
+    if (event.message == 'Installation successful.') {
+      yield VerboseProgressComplete(title: 'Completed',
+        message: event.message,
+        value: getValues(event.message));
+    } else if (event.message == 'Installation failed.') {
+      yield VerboseProgressFailed(title: 'Failure',
+        message: event.message,
+        value: getValues(event.message));
+    }
+  }
+
+  double getValues(String text) {
+    double value = 100;
+    if (text != null && text != '' && text.contains('/')) {
+      List<String> a = text.split('/');
+      List<String> b = a.first.split(' ');
+      double total = double.parse(a.last);
+      double count = double.parse(b.last);
+      value = (count / total);
+    }
+    return value;
   }
 }

@@ -1,17 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sales_force/services/common.dart';
-import 'package:sales_force/shared/config.dart';
+import 'package:sales_force/services/service_common.dart';
+import 'package:sales_force/services/service_control.dart';
+import 'package:sales_force/shared/app_theme.dart';
 
-class SettingsView extends StatefulWidget {
+class SettingsPage extends StatefulWidget {
   @override
-  _SettingsViewState createState() => _SettingsViewState();
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsViewState extends State<SettingsView> {
+class _SettingsPageState extends State<SettingsPage> {
   static const List<String> tileTitle = ['Services', 'Permissions'];
   List<ExpansionTile> _listOfExpansions = List<ExpansionTile>.generate(
       tileTitle.length,
@@ -46,7 +46,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 }
 
-getPermissionsWidgets() {
+List<Widget> getPermissionsWidgets() {
   return Permission.values
       .where((Permission permission) {
         return permission != Permission.reminders &&
@@ -70,11 +70,12 @@ getPermissionsWidgets() {
       .toList();
 }
 
-
-getServicesWidgets() {
-  return [
-  ];
-}
+List<Widget> getServicesWidgets() => ServiceControl.control
+    .getList()
+    .map((e) => ServiceWidget(
+          svc: e,
+        ))
+    .toList();
 
 class PermissionWidget extends StatefulWidget {
   /// Constructs a [PermissionWidget] for the supplied [Permission].
@@ -140,9 +141,7 @@ class _PermissionState extends State<PermissionWidget> {
     future.then((onValue) {
       print(onValue.isGranted);
     });
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text((await permission.status).toString()),
-    ));
+    AppTheme.snackbar(context, (await permission.status).toString());
   }
 
   Future<void> requestPermission(Permission permission) async {
@@ -156,51 +155,39 @@ class _PermissionState extends State<PermissionWidget> {
   }
 }
 
-class ServicesWidgets extends StatefulWidget {
-  String name;
+class ServiceWidget extends StatefulWidget {
+  final ServiceCommon svc;
 
-  ServicesWidgets(this.name);
+  ServiceWidget({this.svc});
 
   @override
-  _ServicesWidgetsState createState() => _ServicesWidgetsState(name: this.name);
+  _ServiceWidgetState createState() => _ServiceWidgetState(svc: svc);
 }
 
-class _ServicesWidgetsState extends State<ServicesWidgets> {
-  String name;
-  bool status;
-
-  _ServicesWidgetsState({this.name});
-
-  final MethodChannel locationServiceChannel =
-      new MethodChannel('com.devaj.ddf/locationService');
-
-
+class _ServiceWidgetState extends State<ServiceWidget> {
+  // final MethodChannel locationServiceChannel =
+  // new MethodChannel('com.devaj.ddf/locationService');
+  ServiceCommon svc;
+  _ServiceWidgetState({this.svc});
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Row(children: [
-        Text(name),
-        
-        FutureBuilder(  builder: (context, snapshot) {
-          
-        },)
-      ],),
-      subtitle: Text((status) ? 'Running' : 'Stopped',
-          style: TextStyle(color: (status) ? Colors.green : Colors.red)),
+      title: Text(widget.svc.name),
+      subtitle: Text((widget.svc.status()) ? 'Running' : 'Stopped',
+          style: TextStyle(
+              color: (widget.svc.status()) ? Colors.green : Colors.red)),
       trailing: IconButton(
-          icon: Icon((status) ? Icons.play_arrow : Icons.stop),
+          icon: Icon((widget.svc.status()) ? Icons.play_arrow : Icons.stop),
           onPressed: () {
-            
+            setState(() => widget.svc.setStatus(!widget.svc.status()));
             // FORGROUND SERVICE TESTING
-            if (status)
-              locationServiceChannel.invokeListMethod('start', {
-                'user_id': Config.user.userId,
-                'trackingApi': Config.putTrackingAPILink
-              });
-            else if (!status) locationServiceChannel.invokeListMethod('stop');
+            // if (svc.status())
+            //   locationServiceChannel.invokeListMethod('start', {
+            //     'user_id': Config.user.userId,
+            //     'trackingApi': Config.putTrackingAPILink
+            //   });
+            // else if (!svc.status()) locationServiceChannel.invokeListMethod('stop');
             //
-
-            
           }),
     );
   }

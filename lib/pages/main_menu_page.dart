@@ -8,6 +8,7 @@ import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/constants.dart';
 import 'package:sales_force/shared/library.dart';
+import 'package:sales_force/shared/widgets/verbose_widget.dart';
 
 class MenuPage extends StatelessWidget {
   void onNewSalePressed(BuildContext context) => Navigator.of(context)
@@ -15,12 +16,34 @@ class MenuPage extends StatelessWidget {
 
   void onViewSalePressed(BuildContext context) => Navigator.of(context)
       .pushNamed('/customers', arguments: SALETYPE.VIEWSALE);
+
   void onNewVisitsPressed(BuildContext context) => Navigator.of(context)
       .pushNamed('/customers', arguments: SALETYPE.REGISTERVISIT);
 
-  void onInvoicesPressed(BuildContext context) {}
-  void onViewVisitsPressed(BuildContext context) {}
-  void onSyncDataPressed(BuildContext context) {}
+  void onInvoicesPressed(BuildContext context) =>
+      Navigator.of(context).pushNamed('/invoices');
+
+  void onViewVisitsPressed(BuildContext context) =>
+      Navigator.of(context).pushNamed('/viewVisits');
+
+  void onSyncDataPressed(BuildContext context) async {
+    try {
+      bool dialogResult = await AppTheme.showAlertDialogYN(context,
+          title: 'Attention', message: 'Are you sure?');
+      if (dialogResult) {
+        bool value = await Library.hasServerAccess();
+        if (value) {
+          Library.install(context, forceUpdate: true);
+          VerboseWidgets(context: context).showVerboseDialog();
+        }
+      }
+    } catch (e) {
+      log('Error occured', name: 'MenuPage', error: e);
+    }
+  }
+
+  void onDbViewPressed(BuildContext context) =>
+      Navigator.of(context).pushNamed('/sql');
 
   Future<bool> _onWillPop(BuildContext context) async {
     return (await showDialog(
@@ -396,7 +419,7 @@ class MenuPage extends StatelessWidget {
             ),
             iconSize: iconSize,
             buttonColor: redColor,
-            onPressed: () {}),
+            onPressed: () => onDbViewPressed(context)),
       ];
 
       if (Config.user.userTypeId == '3') {
@@ -425,6 +448,7 @@ class MenuPage extends StatelessWidget {
         Navigator.of(context)
             .pushNamedAndRemoveUntil('/login', (route) => false);
     } else if (choice == settings) {
+      Navigator.of(context).pushNamed('/settings');
     } else if (choice == update) {}
   }
 }

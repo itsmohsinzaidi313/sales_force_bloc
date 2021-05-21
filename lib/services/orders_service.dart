@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:sales_force/database/tables/order_detail_table.dart';
 import 'package:sales_force/database/tables/order_master_table.dart';
 import 'package:sales_force/database/tables/visits_table.dart';
-import 'package:sales_force/services/common.dart';
+import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/library.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,7 +21,6 @@ class SPostOrder extends ServiceCommon {
   @override
   perform() async {
     cycleComplete = false;
-    log('ORDER UPLOAD SERVICE RESPONDING');
     uploadOrders();
   }
 

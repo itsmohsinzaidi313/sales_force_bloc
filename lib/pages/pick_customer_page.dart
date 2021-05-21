@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:sales_force/bloc/customer_bloc/customer_bloc.dart';
 import 'package:sales_force/models/objects/customer.dart';
+import 'package:sales_force/repositories/visit_repository.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/constants.dart';
@@ -160,7 +162,7 @@ class PickCustomer extends StatelessWidget {
     return <Widget>[
       Row(
         children: <Widget>[
-          AppTheme.recRaisedButton(
+          AppTheme.recElevatedButton(
             text: 'Cash',
             onPressed: () => passEvent(
               context,
@@ -172,7 +174,7 @@ class PickCustomer extends StatelessWidget {
       ),
       Row(
         children: <Widget>[
-          AppTheme.recRaisedButton(
+          AppTheme.recElevatedButton(
             text: 'Credit',
             onPressed: () => passEvent(
               context,
@@ -187,7 +189,7 @@ class PickCustomer extends StatelessWidget {
 
   List<Widget> viewSale(BuildContext context, Customer customer) {
     return <Widget>[
-      AppTheme.recRaisedButton(
+      AppTheme.recElevatedButton(
         text: 'View Sale',
         onPressed: () => passEvent(
           context,
@@ -200,14 +202,23 @@ class PickCustomer extends StatelessWidget {
 
   List<Widget> registerVisit(BuildContext context, Customer customer) {
     return <Widget>[
-      AppTheme.recRaisedButton(
+      AppTheme.recElevatedButton(
           text: 'Add Visit',
           onPressed: () => AppTheme.showAlertDialogYN(
                 context,
                 title: 'Question',
                 message: 'Are you sure?',
-              ).then((value) => value ? null : Navigator.of(context).pop())),
+              ).then((value) => value
+                  ? addVisit(context, customer.customerId)
+                  : Navigator.of(context).pop())),
     ];
+  }
+
+  void addVisit(BuildContext context, String customerId) async {
+    Position position = await Geolocator.getCurrentPosition();
+    VisitRepo.repo.addVisit(
+        customerId: customerId, userId: Config.user.userId, position: position);
+    AppTheme.snackbar(context, 'Visit added');
   }
 
   void passEvent(BuildContext context, CustomerEvent event) =>

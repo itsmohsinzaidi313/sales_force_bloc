@@ -52,12 +52,14 @@ class Library {
 
   static Future<ImportData> fetchData({VerboseBloc bloc}) async {
     try {
-      Response response = await get(Uri.parse(Config.installApi));
-      log('SERVER RESPONSE: ${response.statusCode}');
-      if (response.statusCode == 200) {
+      Response response = await get(Uri.parse(Config.installApi)).timeout(
+          Duration(seconds: Config.ConnectionTimeout),
+          onTimeout: () => null);
+      log('SERVER RESPONSE: ${response.statusCode}', name: 'Library.fetchData');
+      if (response != null && response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        log('STATUS:\n${data['status']}');
-        log('MESSAGE:\n${data['message']}');
+        log('STATUS:${data['status']} MESSAGE:${data['message']}',
+            name: 'Library.fetchData');
         return ImportData(
             status: data['status'].toString(),
             message: data['message'].toString(),
@@ -80,9 +82,9 @@ class Library {
     bool status = await databaseExists(await Config.dbFullPath);
     if (!status || forceUpdate) {
       if (forceUpdate) {
-        sql.deleteAllTables(await Config.database);
+        await sql.deleteAllTables(await Config.database);
       }
-      await sql.initDatabase(await Config.database); // CREATES/UPGRADES DATABASE
+      await sql.initDatabase(); // CREATES/UPGRADES DATABASE
       final import = await Library.fetchData(
           bloc: context
               .read<VerboseBloc>()); // FETCHES DATA AND INSTANCIATES ImportData
@@ -90,13 +92,15 @@ class Library {
           .init(await Config.database); // WRITES FETCHED DATA TO DATABASE
       if (x) {
         await Future.delayed(Duration(seconds: 2));
-        context.read<VerboseBloc>().add(VerboseNewEvent(
-            title: '', message: 'Installation completed successfully.'));
+        context.read<VerboseBloc>().add(
+            VerboseNewEvent(title: '', message: 'Installation successful.'));
+        log('Installation completed', name: 'Library.install');
       } else {
         await Future.delayed(Duration(seconds: 2));
         context
             .read<VerboseBloc>()
             .add(VerboseNewEvent(title: '', message: 'Installation failed.'));
+        log('Installation failed', name: 'Library.install');
       }
     } else {
       context
@@ -109,40 +113,9 @@ class Library {
     }
   }
 
-  static Future<Database> getDatabase() async {
-    String dbStorage = await getDatabasesPath();
-    String path = join(dbStorage, Config.DATABASE_NAME);
-    Future<Database> fDB = openDatabase(path, singleInstance: false);
-    return fDB;
-  }
-
-  static Future<bool> validateUser(String email, String password) async {
-    try {
-      List<int> xx = utf8.encode(password);
-      Digest digest = md5.convert(xx);
-      password = digest.toString();
-      Database db = await getDatabase();
-      String table = 'users';
-      List<String> columns = ['id'];
-      String where = 'user_email_address = ? and user_password = ?';
-      List<String> whereArgs = [email, password];
-      List<Map> x = await db.query(table,
-          columns: columns, where: where, whereArgs: whereArgs);
-      if (x.isNotEmpty) {
-        login(email);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      print(e);
-      return false;
-    }
-  }
-
   static Future<bool> logout(String userId) async {
     try {
-      Database db = await Library.getDatabase();
+      Database db = await Config.database;
       db.update(TableUsers.tableName, {TableUsers.loginStatus: 0},
           where: '${TableUsers.userId} = ?', whereArgs: [int.parse(userId)]);
       return true;
@@ -154,8 +127,8 @@ class Library {
 
   static Future<bool> login(String email) async {
     try {
-      Database db = await Library.getDatabase();
-      await db.update(TableUsers.tableName, {TableUsers.loginStatus:1},
+      Database db = await Config.database;
+      await db.update(TableUsers.tableName, {TableUsers.loginStatus: 1},
           where: '${TableUsers.email} = ?', whereArgs: [email]);
       return true;
     } catch (e) {
@@ -175,7 +148,8 @@ class Library {
       if (jsonString != null && hasServerAccess) {
         onPost = await post(Uri.parse(url),
                 headers: header, body: {'json': jsonString})
-            .timeout(Duration(seconds: 5), onTimeout: () => null)
+            .timeout(Duration(seconds: Config.ConnectionTimeout),
+                onTimeout: () => null)
             .catchError(
                 (onError) => log('ERROR ON uploadToServer', error: onError));
 

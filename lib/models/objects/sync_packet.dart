@@ -1,3 +1,4 @@
+import 'package:sales_force/database/tables/sync_apis_table.dart';
 import 'package:sales_force/shared/config.dart';
 
 class SyncPacket {
@@ -17,6 +18,15 @@ class SyncPacket {
         url =
             '${Config.apiPrefix}${map['sync_service']}&user=${Config.user.userId}',
         createdOn = map['createdon'];
+
+  SyncPacket.fromDb(Map<String, dynamic> map)
+      : id = map[TableSyncApis.id].toString(),
+        serverId = map[TableSyncApis.serverId].toString(),
+        module = map[TableSyncApis.module],
+        operation = map[TableSyncApis.operation],
+        url = map[TableSyncApis.url],
+        createdOn = map[TableSyncApis.createdOn],
+        isUsed = map[TableSyncApis.isUsed].toString();
 
   getList() {
     return [

@@ -10,7 +10,6 @@ import 'package:sales_force/shared/library.dart';
 class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // loadLoginView(context);
     startUp(context);
     return Container(
       height: Config.deviceDisplayHeight(context),
@@ -36,62 +35,69 @@ class SplashPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: SpinKitCircle(
-                  color: Colors.purple,
+                child: SpinKitFadingCircle(
+                  color: Colors.purple[200],
                 ),
               ),
             ],
           ),
           Expanded(
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              BlocBuilder<VerboseBloc, VerboseState>(
-                builder: (context, state) {
-                  try {
-                    return Column(
-                      children: [
-                        Center(
-                          child: RichText(
-                              text: TextSpan(
-                            text: state.title,
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          )),
-                        ),
-                        RichText(
-                            text: TextSpan(
-                          text: state.message,
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
-                        )),
-                      ],
-                    );
-                  } catch (e) {
-                    return RichText(
-                      text: TextSpan(
-                        style: TextStyle(color: Colors.grey),
-                        text: 'Error Occured',
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                BlocBuilder<VerboseBloc, VerboseState>(
+                  builder: (context, state) {
+                    try {
+                      return Column(
                         children: [
-                          TextSpan(
-                            style: TextStyle(color: Colors.grey[400]),
-                            text: e.toString(),
+                          Center(
+                            child: RichText(
+                              text: TextSpan(
+                                text: state.title,
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          RichText(
+                            text: TextSpan(
+                              text: state.message,
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                            ),
                           ),
                         ],
-                      ),
-                    );
-                  }
-                  // return Card(
-                  //   child: SizedBox(
-                  //     width: Config.deviceDisplayWidth(context) * 0.9,
-                  //     child: ListTile(
-                  //       isThreeLine: true,
-                  //       title: Text(
-                  //           state.title == null ? 'Operation' : state.title),
-                  //       subtitle: Text(
-                  //           state.message == null ? 'Updates' : state.message),
-                  //     ),
-                  //   ),
-                  // );
-                },
-              )
-            ]),
+                      );
+                    } catch (e) {
+                      return RichText(
+                        text: TextSpan(
+                          style: TextStyle(color: Colors.grey),
+                          text: 'Error Occured',
+                          children: [
+                            TextSpan(
+                              style: TextStyle(color: Colors.grey[400]),
+                              text: e.toString(),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    // return Card(
+                    //   child: SizedBox(
+                    //     width: Config.deviceDisplayWidth(context) * 0.9,
+                    //     child: ListTile(
+                    //       isThreeLine: true,
+                    //       title: Text(
+                    //           state.title == null ? 'Operation' : state.title),
+                    //       subtitle: Text(
+                    //           state.message == null ? 'Updates' : state.message),
+                    //     ),
+                    //   ),
+                    // );
+                  },
+                )
+              ],
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -108,12 +114,16 @@ class SplashPage extends StatelessWidget {
   }
 
   Timer loadLoginView(BuildContext context) {
-    return Timer(Duration(seconds: Config.splashTimeOut),
+    return Timer(Duration(seconds: Config.SplashTimeOut),
         () => Navigator.of(context).pushReplacementNamed('/login'));
   }
 
   Future<void> startUp(BuildContext context) async {
-    await Library.install(context,  forceUpdate: true);
+    await Library.install(
+      context,
+      // forceUpdate: true,
+      // reinstall: true,
+    );
     await Future.delayed(Duration(seconds: 2));
     Navigator.of(context).pushReplacementNamed('/login');
   }

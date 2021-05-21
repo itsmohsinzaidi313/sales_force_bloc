@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sales_force/database/tables/visits_table.dart';
+import 'package:sales_force/repositories/visit_repository.dart';
 import 'package:sales_force/shared/app_theme.dart';
-import 'package:sales_force/models/visit.dart';
+import 'package:sales_force/shared/config.dart';
 
-class ViewVisits extends StatefulWidget {
-  final List<Visit> visits;
-
-  ViewVisits({this.visits});
-
-  @override
-  _ViewVisitsState createState() => _ViewVisitsState(visits: this.visits);
-}
-
-class _ViewVisitsState extends State<ViewVisits> {
-  final List<Visit> visits;
-
-  _ViewVisitsState({this.visits});
-
+class ViewVisitsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,46 +22,56 @@ class _ViewVisitsState extends State<ViewVisits> {
               Container(
                 color: Colors.white,
                 child: ListTile(
-                    title: Text('Dates',
+                    title: Text('Visits',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20))),
               ),
-              ListView(
-                shrinkWrap: true,
-                children: getVisitsWidgets(),
+              FutureBuilder(
+                future: VisitRepo.repo.getAllVisits(Config.user.userId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Map<String, dynamic>> list = snapshot.data;
+                    if (list.isNotEmpty) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: list.length,
+                        itemBuilder: (context, index) {
+                          Icon icon;
+                          if (list[index][TableVisits.isUpload] == 1)
+                            icon = new Icon(Icons.check, color: Colors.green);
+                          else
+                            icon = new Icon(Icons.close, color: Colors.red);
+                          return Card(
+                              color: Colors.white,
+                              child: ListTile(
+                                  leading: Icon(Icons.location_on),
+                                  isThreeLine: true,
+                                  title: Text(list[index]['name']),
+                                  subtitle: Text(
+                                      '${list[index]['shop']}\n${list[index][TableVisits.createdOn]}'),
+                                  trailing: icon));
+                        },
+                      );
+                    } else {
+                      return Card(
+                          color: Colors.white,
+                          child: ListTile(
+                            title: AppTheme.text(text: 'No Visits To Show.'),
+                            trailing: Icon(
+                              Icons.priority_high,
+                              color: Colors.blue,
+                            ),
+                          ));
+                    }
+                  } else {
+                    return AppTheme.progIndicator;
+                  }
+                },
               )
             ],
           ),
         ),
       ),
     );
-  }
-
-  List<Widget> getVisitsWidgets() {
-    List<Widget> widgets = [];
-    if (visits.isNotEmpty) {
-      visits.forEach((e) {
-        Icon icon;
-        if (e.isUploaded)
-          icon = new Icon(Icons.check, color: Colors.green);
-        else
-          icon = new Icon(Icons.close, color: Colors.red);
-        widgets.add(
-          Card(
-              color: Colors.white,
-              child: ListTile(title: Text(e.getStringDate()), trailing: icon)),
-        );
-      });
-    } else
-      widgets.add(Card(
-          color: Colors.white,
-          child: ListTile(
-            title: AppTheme.text(text: 'No Visits To Show.'),
-            trailing: Icon(
-              Icons.priority_high,
-              color: Colors.blue,
-            ),
-          )));
-    return widgets;
   }
 }

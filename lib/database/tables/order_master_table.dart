@@ -4,7 +4,9 @@ import 'package:sqflite_common/sqlite_api.dart';
 
 class TableOrderMaster extends SqlCommons {
   TableOrderMaster(Database database, VerboseBloc bloc)
-      : super(tableName, columns, dataTypes, database, bloc);
+      : super(tableName, columns, dataTypes, database, bloc) {
+        skipDelete = true;
+      }
   static const String tableName = 'order_master';
   static const String id = 'id',
       userId = 'user_id',

@@ -23,7 +23,6 @@ import 'package:sales_force/database/tables/users_table.dart';
 import 'package:sales_force/database/tables/users_type_table.dart';
 import 'package:sales_force/database/tables/visits_table.dart';
 import 'package:sales_force/shared/config.dart';
-import 'package:sales_force/shared/library.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -55,22 +54,18 @@ class Sql {
         TableLocation(db, bloc),
       ];
 
-  Future<void> initDatabase(Database database) async {
+  Future<void> initDatabase() async {
     try {
-      _database = database;
       PermissionStatus status = await Permission.storage.request();
 
       if (status.isGranted) {
         if (Config.DATABASE_NAME != '') {
-          String databasePath = await getDatabasesPath();
-          databasePath = join(databasePath, Config.DATABASE_NAME);
-          _database = await openDatabase(databasePath,
+          _database = await openDatabase( await Config.dbFullPath,
               singleInstance: true,
               version: Config.DATABASE_VERSION,
               onCreate: onCreate,
               onUpgrade: onUpgrade,
               onDowngrade: onDownGrade);
-          Config.database = Future.value(_database);
           int version = await _database.getVersion();
           _bloc.add(VerboseNewEvent(
               title: 'SQL',

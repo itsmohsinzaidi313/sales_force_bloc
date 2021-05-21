@@ -15,7 +15,7 @@ class AppTheme {
   static Widget get progIndicator => Center(
       child:
           SizedBox(height: 40, width: 40, child: CircularProgressIndicator()));
-          
+
   static void snackbar(BuildContext context, String text,
           {bool error = false}) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -81,27 +81,29 @@ class AppTheme {
     );
   }
 
-  static RaisedButton rectangleRaisedButton(
+  static ElevatedButton rectangleElevatedButton(
       {Color color = Colors.white,
       String text,
       double fontSize = 18,
       Function onPressed}) {
-    return new RaisedButton(
-        color: Colors.blue,
+    return new ElevatedButton(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.blue)),
         onPressed: onPressed,
         child: AppTheme.text(text: text, fontSize: fontSize, color: color));
   }
 
-  static RaisedButton roundRaisedButton(
+  static ElevatedButton roundElevatedButton(
       {Color color = Colors.white,
       String text,
       double fontSize = 18,
       Function onPressed,
       double borderRadius = 30.0}) {
-    return new RaisedButton(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius)),
-      color: Colors.blue,
+    return new ElevatedButton(
+      style: ButtonStyle(
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius))),
+          backgroundColor: MaterialStateProperty.all(Colors.blue)),
       child: Text(
         text,
         style: TextStyle(color: color, fontSize: fontSize),
@@ -110,17 +112,18 @@ class AppTheme {
     );
   }
 
-  static RaisedButton recRaisedButton(
+  static ElevatedButton recElevatedButton(
       {String text,
       Color textColor = Colors.white,
       Color buttonColor = Colors.blue,
       Function onPressed}) {
-    return RaisedButton(
+    return ElevatedButton(
       child: Text(
         text,
         style: TextStyle(color: textColor),
       ),
-      color: buttonColor,
+      style:
+          ButtonStyle(backgroundColor: MaterialStateProperty.all(buttonColor)),
       onPressed: onPressed,
     );
   }
@@ -180,7 +183,8 @@ class AppTheme {
       {String text,
       double fontSize = 15,
       FontWeight fontWeight = FontWeight.normal,
-      Color color = Colors.black, TextOverflow textOverflow = TextOverflow.visible}) {
+      Color color = Colors.black,
+      TextOverflow textOverflow = TextOverflow.visible}) {
     return Text(
       text,
       overflow: textOverflow,
@@ -257,7 +261,7 @@ class AppTheme {
   }
 
   static Future<bool> showAlertDialogYN(BuildContext context,
-      {String title, String message}) {
+      {@required String title, @required String message}) {
     return showDialog<bool>(
         context: context,
         builder: (value) => AlertDialog(
@@ -268,7 +272,8 @@ class AppTheme {
                   child: text(text: 'Yes', color: Colors.blue),
                   onPressed: () => Navigator.of(context).pop(true)),
               TextButton(
-                  child: text(text: 'No', color: Colors.blue), onPressed: () => Navigator.of(context).pop(false))
+                  child: text(text: 'No', color: Colors.blue),
+                  onPressed: () => Navigator.of(context).pop(false))
             ],
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8))));

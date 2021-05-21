@@ -159,7 +159,23 @@ class InvoicePaymentPage extends StatelessWidget {
               ),
             )
           : BlocListener<InvoiceBloc, InvoiceState>(
-              listener: (context, state) {},
+              listener: (context, state) {
+                if (state is PaymentSuccessfulState) {
+                  AppTheme.snackbar(context, state.message);
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/menu', (route) => false);
+                } else if (state is PaymentUnsuccessfulState) {
+                  AppTheme.snackbar(context, state.message);
+                } else if (state is InvalidPaymentState) {
+                  AppTheme.snackbar(context, state.message);
+                } else if (state is InvalidBankState) {
+                  AppTheme.snackbar(context, state.message);
+                } else if (state is InvalidChequeNoState) {
+                  AppTheme.snackbar(context, state.message);
+                } else if (state is InvalidClearingDateEvent) {
+                  AppTheme.snackbar(context, state.message);
+                }
+              },
               child: ListView(
                 children: [
                   ListTile(
@@ -264,7 +280,9 @@ class InvoicePaymentPage extends StatelessWidget {
               ),
             ),
             Divider(),
-            AppTheme.recElevatedButton(text: 'PAY', onPressed: () => null),
+            AppTheme.recElevatedButton(
+                text: 'PAY',
+                onPressed: () => passEvent(context, PayInvoicePressed())),
           ],
         ),
       ),
@@ -317,18 +335,33 @@ class InvoicePaymentPage extends StatelessWidget {
                 ),
               ),
             ),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Cheque No',
+                icon: Icon(Icons.arrow_forward),
+              ),
+              onChanged: (value) => passEvent(
+                context,
+                ChequeNoChanged(
+                  chequeNo: value,
+                ),
+              ),
+            ),
             Row(
               children: [
-                Container(
-                  width: Config.deviceDisplayWidth(context) * 0.2,
-                  child: TextField(
-                    decoration: InputDecoration(
-                        labelText: 'Cheque No',
-                        icon: Icon(Icons.arrow_forward)),
-                    onChanged: (value) => passEvent(
-                      context,
-                      ChequeNoChanged(
-                        chequeNo: value,
+                Expanded(
+                  child: Container(
+                    width: Config.deviceDisplayWidth(context) * 0.2,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Clearing Date',
+                        icon: Icon(Icons.arrow_forward),
+                      ),
+                      onChanged: (value) => passEvent(
+                        context,
+                        ClearingDateChanged(
+                          clearingDate: value,
+                        ),
                       ),
                     ),
                   ),
@@ -358,7 +391,9 @@ class InvoicePaymentPage extends StatelessWidget {
               ),
             ),
             Divider(),
-            AppTheme.recElevatedButton(text: 'PAY', onPressed: () => null),
+            AppTheme.recElevatedButton(
+                text: 'PAY',
+                onPressed: () => passEvent(context, PayInvoicePressed())),
           ],
         ),
       ),

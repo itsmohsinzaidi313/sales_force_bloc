@@ -13,29 +13,32 @@ part 'customer_state.dart';
 
 class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   CustomerBloc() : super(CustomerInitial());
-
+  List<Customer> customers = [];
   @override
   Stream<CustomerState> mapEventToState(
     CustomerEvent event,
   ) async* {
     try {
       if (event is LoadCustomerEvent) {
+        customers = await CustomerRepo.repo.getAllCustomers(Config.user.userId);
         yield NormalCustomerState();
-        yield CustomerListState(
-            list:
-                (await CustomerRepo.repo.getAllCustomers(Config.user.userId)));
+        yield CustomerListState(list: customers);
       }
       if (event is SearchCustomerPressed) {
         yield SearchCustomerState();
       } else if (event is CustomerNameChanged) {
         yield CustomerListState(
-            list: (await CustomerRepo.repo
-                .searchCustomers(Config.user.userId, event.name)));
+            list: customers.where((element) {
+          String name = '${element.firstName} ${element.lastName}';
+          if (name.toLowerCase().contains(event.name.toLowerCase())) {
+            return true;
+          } else {
+            return false;
+          }
+        }).toList());
       } else if (event is CancelSearchPressed) {
         yield NormalCustomerState();
-        yield CustomerListState(
-            list:
-                (await CustomerRepo.repo.getAllCustomers(Config.user.userId)));
+        yield CustomerListState(list: customers);
       } else if (event is CustomerSelected) {
         yield TakeCustomerOrder(
             customer: event.customer, paymentmode: event.paymentmode);

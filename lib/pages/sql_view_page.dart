@@ -3,12 +3,12 @@ import 'package:flutter/rendering.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-class SqlView extends StatefulWidget {
+class SqlViewPage extends StatefulWidget {
   @override
-  _SqlViewState createState() => _SqlViewState();
+  _SqlViewPageState createState() => _SqlViewPageState();
 }
 
-class _SqlViewState extends State<SqlView> {
+class _SqlViewPageState extends State<SqlViewPage> {
   bool applyNewLine = false;
   bool capsColumnNames = false;
   final _textEditingController1 = TextEditingController();
@@ -96,7 +96,7 @@ class _SqlViewState extends State<SqlView> {
                       color: Colors.red,
                     ),
                     onPressed: () async {
-                      Database db = await Config.database;
+                      Database db = await  Config.database;
                       List<Map<String, dynamic>> values =
                           await db.rawQuery(_textEditingController2.text);
                       result = values;

@@ -4,7 +4,9 @@ import 'package:sqflite_common/sqlite_api.dart';
 
 class TableVisits extends SqlCommons {
   TableVisits(Database database, VerboseBloc bloc)
-      : super(tableName, columns, dataTypes, database, bloc);
+      : super(tableName, columns, dataTypes, database, bloc) {
+    skipDelete = true;
+  }
 
   static const String tableName = 'visits';
   static const String id = 'id',
@@ -16,7 +18,17 @@ class TableVisits extends SqlCommons {
       createdOn = 'createdon',
       isUpload = 'is_upload',
       orderId = 'order_id';
-  static const List<String> columns = [id, customerId, userId, latitude, longitude, isOrder, createdOn, isUpload, orderId];
+  static const List<String> columns = [
+    id,
+    customerId,
+    userId,
+    latitude,
+    longitude,
+    isOrder,
+    createdOn,
+    isUpload,
+    orderId
+  ];
   static const List<String> dataTypes = [
     SqlCommons.INT_PRIMARYKEY,
     SqlCommons.INTEGER,

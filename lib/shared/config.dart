@@ -20,8 +20,10 @@ class Config {
       apiPrefix + 'api.php?action=put&module=tracking&user=${user.userId}';
   static String syncAPILink = apiPrefix + 'api.php?action=sync&createdon=';
 
-  static const int serviceCycleDelay = 10; //seconds
-  static const int splashTimeOut = 5; //seconds
+  static const int ServiceCycleDelay = 10; // seconds
+  static const int SplashTimeOut = 5; // seconds
+  static const int ConnectionTimeout = 30; // seconds
+
   static double deviceDisplayWidth(BuildContext context) =>
       MediaQuery.of(context).size.width;
 

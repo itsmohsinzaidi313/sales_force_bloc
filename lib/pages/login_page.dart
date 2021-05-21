@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/login_bloc/login_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
+import 'package:sales_force/services/service_control.dart';
 import 'package:sales_force/shared/app_theme.dart';
+import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/library.dart';
+import 'package:sales_force/shared/widgets/verbose_widget.dart';
 
 class LoginPage extends StatelessWidget {
   final loginFields = LoginFields();
@@ -16,6 +20,8 @@ class LoginPage extends StatelessWidget {
       listener: (context, state) {
         if (state is LoginSuccessful) {
           AppTheme.snackbar(context, state.message);
+          Config.database.then((value) => ServiceControl.control
+              .initializeDatabaseDependent(database: value));
           Navigator.pushNamedAndRemoveUntil(context, '/menu', (route) => false);
         } else if (state is InvalidSubmission) {
           AppTheme.snackbar(context, state.message);
@@ -70,36 +76,38 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  static const List<String> choices = [
-    Download, /*Update*/
-  ];
-  static const String Download = 'Download';
-
-//  static const String Update = 'Update';
+  static const List<String> choices = [/* Reinstall, */ Update];
+  // static const String Reinstall = 'Reinstall';
+  static const String Update = 'Update';
 
   void choiceAction(String choice, BuildContext context) {
-    if (choice == Download) {
-      Library.hasServerAccess().then((value) {
-        if (value) {
-        } else {
-          AppTheme.showAlertDialogOK(context,
-              title: 'Attention',
-              message: 'Please connect to internet',
-              onOK: () => Navigator.pop(context));
+    Library.hasServerAccess().then((value) {
+      if (value) {
+        // if (choice == Reinstall) {
+        //   Library.install(context, reinstall: true);
+        // } else
+        if (choice == Update) {
+          Library.install(context, forceUpdate: true);
         }
-      }).catchError((onError) {
-        if (onError is SocketException)
-          AppTheme.showAlertDialogOK(context,
-              title: 'Attention',
-              message: 'Please connect to internet',
-              onOK: () => Navigator.pop(context));
-        else
-          AppTheme.showAlertDialogOK(context,
-              title: 'Attention',
-              message: 'An error has occured.\n${onError.toString()}',
-              onOK: () => Navigator.pop(context));
-      });
-    }
+        VerboseWidgets(context: context).showVerboseDialog();
+      } else {
+        AppTheme.showAlertDialogOK(context,
+            title: 'Attention',
+            message: 'Please connect to internet',
+            onOK: () => Navigator.pop(context));
+      }
+    }).catchError((onError) {
+      if (onError is SocketException)
+        AppTheme.showAlertDialogOK(context,
+            title: 'Attention',
+            message: 'Please connect to internet',
+            onOK: () => Navigator.pop(context));
+      else
+        AppTheme.showAlertDialogOK(context,
+            title: 'Attention',
+            message: 'An error has occured.\n${onError.toString()}',
+            onOK: () => Navigator.pop(context));
+    });
   }
 }
 
@@ -133,7 +141,7 @@ class LoginButton extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Center(
-                      child: AppTheme.roundRaisedButton(
+                      child: AppTheme.roundElevatedButton(
                     text: 'Sign in',
                     onPressed: () => context
                         .read<LoginBloc>()

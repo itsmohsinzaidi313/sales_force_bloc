@@ -338,7 +338,7 @@ class ItemsTabsView extends StatelessWidget {
                         text: 'TOTAL: ${state.totalAmount}'))),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: AppTheme.roundRaisedButton(
+              child: AppTheme.roundElevatedButton(
                 text: 'Checkout',
                 onPressed: () => passEvent(
                   context,

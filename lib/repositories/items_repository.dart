@@ -18,6 +18,7 @@ class ItemsMenuRepo {
               where: '${TableProducts.userId} = ?', whereArgs: [userId]))
           .map((e) => Product.withMap([e]))
           .toList();
+          
   Future<Product> getProduct(String productId) async =>
       (await (await database).query(TableProducts.tableName,
               where: '${TableProducts.productId} = ?', whereArgs: [productId]))

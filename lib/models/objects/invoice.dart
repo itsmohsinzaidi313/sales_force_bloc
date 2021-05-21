@@ -36,18 +36,18 @@ class Invoice {
 
   Invoice.withMap(List<dynamic> map) {
     if (map.isNotEmpty) {
-      this.invoiceId = map[0]['invoice_id'];
-      this.orderId = map[0]['order_id'];
-      this.customerId = map[0]['customer_id'];
-      this.userId = map[0]['user_id'];
+      this.invoiceId = map[0]['invoice_id'].toString();
+      this.orderId = map[0]['order_id'].toString();
+      this.customerId = map[0]['customer_id'].toString();
+      this.userId = map[0]['user_id'].toString();
       this.invoiceNumber = map[0]['invoice_number'];
       this.date = map[0]['invoice_date'];
-      this.amount = map[0]['invoice_amount'];
-      this.discount = map[0]['invoice_discount'];
-      this.totalAmount = map[0]['invoice_total_amount'];
-      this.paidAmount = map[0]['invoice_paid_amount'];
-      this.balance = map[0]['invoice_balance'];
-      this.status = map[0]['invoiice_status'];
+      this.amount = map[0]['invoice_amount'].toString();
+      this.discount = map[0]['invoice_discount'].toString();
+      this.totalAmount = map[0]['invoice_total_amount'].toString();
+      this.paidAmount = map[0]['invoice_paid_amount'].toString();
+      this.balance = map[0]['invoice_balance'].toString();
+      this.status = map[0]['invoice_status'].toString();
       this.createdon = map[0]['createdon'];
       this.modifiedon = map[0]['modifiedon'];
     } else {

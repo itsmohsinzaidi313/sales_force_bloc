@@ -4,7 +4,7 @@ import 'dart:developer';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:sales_force/database/tables/location_table.dart';
-import 'package:sales_force/services/common.dart';
+import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/library.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,7 +21,6 @@ class SPostLocation extends ServiceCommon {
   @override
   Future<void> perform() async {
     cycleComplete = false;
-    log('LOCATION SERVICE RESPONDING');
     recordLocation();
     uploadLocation();
   }

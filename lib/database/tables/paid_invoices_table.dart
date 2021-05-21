@@ -4,7 +4,9 @@ import 'package:sqflite_common/sqlite_api.dart';
 
 class TablePaidInvoices extends SqlCommons {
   TablePaidInvoices(Database database, VerboseBloc bloc)
-      : super(tableName, columns, dataTypes, database, bloc);
+      : super(tableName, columns, dataTypes, database, bloc){
+        skipDelete = true;
+      }
   static const tableName = 'paid_invoices';
   static const String id = 'id',
       userId = 'payment_user_id',

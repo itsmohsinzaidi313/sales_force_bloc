@@ -14,6 +14,14 @@ class CustomerRepo {
           .map((e) => Customer.withMap([e]))
           .toList();
 
+  Future<Customer> getCustomer(String customerId) async =>
+      (await (await database).query(TableCustomer.tableName,
+              where: '${TableCustomer.customerId} = ?',
+              whereArgs: [customerId]))
+          .map((e) => Customer.withMap([e]))
+          .toList()
+          .first;
+
   Future<List<Customer>> searchCustomers(String userId, String phrase) async =>
       (await (await database).query(TableCustomer.tableName,
               where:

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/services/invoice_service.dart';
 import 'package:sales_force/services/location_service.dart';
@@ -14,13 +15,11 @@ class ServiceControl {
   SPostLocation locationService;
   SPostVisit visitService;
   SSyncService syncService;
-  ServiceControl() {
-    databaseDependent();
-  }
+  static ServiceControl control = ServiceControl._internal();
+  ServiceControl._internal();
 
-  databaseDependent() async {
+  void initializeDatabaseDependent({Database database}) async {
     try {
-      Database database = await Config.database;
       this.invoiceService = new SPostInvoice(database);
       this.orderService = new SPostOrder(database);
       this.visitService = new SPostVisit(database);
@@ -57,7 +56,7 @@ class ServiceControl {
     } else if (name == invoiceService.name) invoiceService.setStatus(status);
   }
 
-  getList() {
+  List<ServiceCommon> getList() {
     return [
       syncService,
       visitService,
@@ -67,7 +66,7 @@ class ServiceControl {
     ];
   }
 
-  startAllServices() {
+  void startAllServices() {
     locationService.start();
     orderService.start();
     invoiceService.start();
@@ -75,7 +74,7 @@ class ServiceControl {
     syncService.start();
   }
 
-  stopAllService() {
+  void stopAllService() {
     locationService.stop();
     orderService.stop();
     invoiceService.stop();
