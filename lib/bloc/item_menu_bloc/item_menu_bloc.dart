@@ -3,11 +3,14 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:sales_force/models/objects/category.dart';
+import 'package:sales_force/models/objects/customer.dart';
 import 'package:sales_force/models/objects/customer_order.dart';
 import 'package:sales_force/models/objects/product.dart';
+import 'package:sales_force/models/objects/product_foc.dart';
 import 'package:sales_force/models/objects/product_prices.dart';
 import 'package:sales_force/repositories/items_repository.dart';
 import 'package:sales_force/shared/config.dart';
+import 'package:sales_force/shared/constants.dart';
 
 part 'item_menu_event.dart';
 part 'item_menu_state.dart';
@@ -18,30 +21,24 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
   List<Product> products = [];
   List<Category> categories = [];
   List<ProductPrices> productPrices = [];
+  List<ProductFoc> productFOC = [];
 
   @override
   Stream<ItemMenuState> mapEventToState(
     ItemMenuEvent event,
   ) async* {
     try {
-      if (event is LoadItemsEvent) {
-        customerOrder.reset();
-        categories =
-            await ItemsMenuRepo.repo.getAllCategories(Config.user.userId);
-        products = await ItemsMenuRepo.repo.getAllProducts(Config.user.userId);
-        productPrices = await ItemsMenuRepo.repo.getProductPrices();
-        products.forEach((p) {
-          p.price = productPrices
-              .where((pp) => pp.productId == p.productId)
-              .first
-              .cashPrice;
-        });
+      if (event is InitItemMenuEvent) {
+        customerOrder.customer = event.customer;
+        customerOrder.paymentmode = event.paymentmode;
+      } else if (event is LoadItemsEvent) {
+        await loadItems();
         yield LoadItemMenuState(
             categories: categories, products: products, totalAmount: '0');
       }
       if (event is SearchPressed) {
         yield SearchItemState(products: []);
-      } else if(event is PanelCollasped) {
+      } else if (event is PanelCollasped) {
         yield CartItemsState(
             products: customerOrder.cartItems,
             totalAmount: customerOrder.totalAmount);
@@ -51,10 +48,9 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
             products: products,
             totalAmount: customerOrder.totalAmount);
       } else if (event is ItemNameChanged) {
-        // final products = await ItemsMenuRepo.repo
-        //     .searchProducts(Config.user.userId, event.name);
         yield SearchItemState(
-            products: products.where((e) => e.title.contains(event.name)));
+            products:
+                products.where((e) => e.title.contains(event.name)).toList());
       } else if (event is ItemAddEvent) {
         customerOrder.addCartItem(products
             .where((element) => element.productId == event.productId)
@@ -74,17 +70,24 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
             totalAmount: customerOrder.totalAmount);
       } else if (event is QuantityChanged) {
         customerOrder.setQuantity(event.productId, event.quantity);
+
         yield CartItemsState(
             products: customerOrder.cartItems,
             totalAmount: customerOrder.totalAmount);
       } else if (event is FOCQuantityChanged) {
         customerOrder.setFOCQuantity(event.productId, event.quantity);
+
         yield CartItemsState(
             products: customerOrder.cartItems,
             totalAmount: customerOrder.totalAmount);
       } else if (event is SubmitOrder) {
         if (customerOrder.cartItems.length > 0) {
-          yield ValidSubmission(customerOrder: customerOrder);
+          if (validateItemsQuantity(customerOrder.cartItems)) {
+            yield ValidSubmission(customerOrder: customerOrder);
+          } else {
+            yield InvalidSubmission(
+                message: 'One or more items have invalid quantities.');
+          }
         } else {
           yield InvalidSubmission(message: 'Your cart is empty.');
         }
@@ -93,5 +96,47 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
       log('ERROR', error: e, name: 'ItemMenuBloc');
       yield ItemMenuErrorState(message: e.toString());
     }
+  }
+
+  Future<void> loadItems() async {
+    customerOrder.reset();
+    categories = await ItemsMenuRepo.repo.getAllCategories(Config.user.userId);
+    products = await ItemsMenuRepo.repo.getAllProducts(Config.user.userId);
+    productPrices = await ItemsMenuRepo.repo.getProductPrices();
+    productFOC = await ItemsMenuRepo.repo.getProductFoc();
+
+    products.forEach((p) {
+      ProductPrices pp = productPrices
+          .where((pp) =>
+              pp.productId == p.productId &&
+              pp.customerGroupId == customerOrder.customer.customerGroupId)
+          .first;
+      if (customerOrder.paymentmode == PAYMENTMODE.CASH) {
+        p.price = pp.cashPrice;
+      } else if (customerOrder.paymentmode == PAYMENTMODE.CREDIT) {
+        p.price = pp.creditPrice;
+      }
+
+      List<ProductFoc> x = productFOC
+              .where((pFOC) => pFOC.productId == int.parse(p.productId))
+              .toList() ??
+          [];
+      ProductFoc foc = ProductFoc(
+          start: 0, end: 0, quantity: 0, productId: int.parse(p.productId));
+      if (x.isNotEmpty) {
+        foc = x.first;
+      }
+      p.foc = foc;
+    });
+  }
+
+  bool validateItemsQuantity(List<Product> items) {
+    bool valid = true;
+    items.forEach((p) {
+      if (p.quantity <= 0) {
+        valid = false;
+      }
+    });
+    return valid;
   }
 }

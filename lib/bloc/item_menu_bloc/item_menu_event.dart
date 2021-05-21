@@ -51,3 +51,9 @@ class FOCQuantityChanged extends ItemMenuEvent {
 class SubmitOrder extends ItemMenuEvent {}
 
 class PanelCollasped extends ItemMenuEvent {}
+
+class InitItemMenuEvent extends ItemMenuEvent {
+  final Customer customer;
+  final PAYMENTMODE paymentmode;
+  InitItemMenuEvent({this.customer, this.paymentmode});
+}

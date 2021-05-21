@@ -62,6 +62,9 @@ class RouteConfig {
         );
         break;
       case '/newSale':
+        itemMenuBloc.add(InitItemMenuEvent(
+            paymentmode: (routeSettings.arguments as List)[0],
+            customer: (routeSettings.arguments as List)[1]));
         itemMenuBloc.add(LoadItemsEvent());
         return MaterialPageRoute(
             builder: (context) => BlocProvider.value(
@@ -93,10 +96,9 @@ class RouteConfig {
         );
         break;
       case '/viewSales':
-        List<String> arguments = routeSettings.arguments;
-        viewSalesBloc.add(LoadSalesSummary(
-          userId: arguments[0],
-          customerId: arguments[1],
+        viewSalesBloc.add(SetSalesValues(
+          userId: (routeSettings.arguments as List)[0],
+          customerId: (routeSettings.arguments as List)[1],
         ));
         return MaterialPageRoute(
           builder: (context) => BlocProvider.value(

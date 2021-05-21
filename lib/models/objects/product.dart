@@ -1,4 +1,5 @@
 import 'package:sales_force/database/tables/products_table.dart';
+import 'package:sales_force/models/objects/product_foc.dart';
 import 'package:sales_force/models/objects/product_prices.dart';
 
 class Product {
@@ -24,6 +25,7 @@ class Product {
   bool focOverride = false;
   String price;
   List<dynamic> _customerGroupPrices;
+  ProductFoc foc;
 
   Product(
       {this.productId,
@@ -65,6 +67,7 @@ class Product {
     this.quantity = product.quantity;
     this.focQuantity = product.focQuantity;
     this.price = product.price;
+    this.foc = product.foc;
   }
 
   Product.withMap(List<dynamic> i) {

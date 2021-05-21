@@ -25,6 +25,8 @@ class ItemsMenuPage extends StatelessWidget {
               .pushNamed('/orderPayment', arguments: state.customerOrder);
         } else if (state is InvalidSubmission) {
           AppTheme.snackbar(context, state.message);
+        } else if (state is ItemMenuErrorState) {
+          AppTheme.snackbar(context, state.message, error: true);
         }
       },
       child: BlocBuilder<ItemMenuBloc, ItemMenuState>(
@@ -59,38 +61,44 @@ class ItemsSearchView extends StatelessWidget {
       buildWhen: (previous, current) => current is SearchItemState,
       builder: (context, state) {
         if (state is SearchItemState) {
-          return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.blue,
-                title: TextField(
-                  onChanged: (value) =>
-                      passEvent(context, ItemNameChanged(name: value)),
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.search,
-                        color: Colors.white,
-                      ),
-                      hintText: "Search Items Here",
-                      hintStyle: TextStyle(color: Colors.white)),
-                ),
-                actions: <Widget>[
-                  BlocBuilder<ItemMenuBloc, ItemMenuState>(
-                    buildWhen: (previous, current) =>
-                        current is SearchItemState,
-                    builder: (context, state) {
-                      if (state is SearchItemState) {
-                        return IconButton(
-                          icon: Icon(Icons.cancel),
-                          onPressed: () =>
-                              passEvent(context, CancelSearchPressed()),
-                        );
-                      }
-                    },
+          return WillPopScope(
+            onWillPop: () async {
+              passEvent(context, CancelSearchPressed());
+              return false;
+            },
+            child: Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Colors.blue,
+                  title: TextField(
+                    onChanged: (value) =>
+                        passEvent(context, ItemNameChanged(name: value)),
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                        icon: Icon(
+                          Icons.search,
+                          color: Colors.white,
+                        ),
+                        hintText: "Search Items Here",
+                        hintStyle: TextStyle(color: Colors.white)),
                   ),
-                ],
-              ),
-              body: productsListView(state.products));
+                  actions: <Widget>[
+                    BlocBuilder<ItemMenuBloc, ItemMenuState>(
+                      buildWhen: (previous, current) =>
+                          current is SearchItemState,
+                      builder: (context, state) {
+                        if (state is SearchItemState) {
+                          return IconButton(
+                            icon: Icon(Icons.cancel),
+                            onPressed: () =>
+                                passEvent(context, CancelSearchPressed()),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                body: productsListView(state.products)),
+          );
         } else {
           return Container(
             child: AppTheme.progIndicator,
@@ -273,7 +281,7 @@ class ItemsTabsView extends StatelessWidget {
     }
   }
 
-  slideUpPanelCollapsed(ItemMenuState state) {
+  Widget slideUpPanelCollapsed(ItemMenuState state) {
     return Container(
       decoration: BoxDecoration(color: Colors.blue[600]),
       child: Padding(
@@ -296,7 +304,7 @@ class ItemsTabsView extends StatelessWidget {
     );
   }
 
-  slideUpPanelPanel(ItemMenuState state) {
+  Widget slideUpPanelPanel(ItemMenuState state) {
     return Column(children: <Widget>[
       Container(
           color: Colors.blue[600],
@@ -350,72 +358,85 @@ class ItemsTabsView extends StatelessWidget {
     ]);
   }
 
-  Widget getCartItemsWidgets(Product product) => AppTheme.card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                  child: AppTheme.text(
-                      text: 'ItemName:${product.title}\n'
-                          'Unit Price: ${product.packPrice}\n'
-                          'Quantity: ${product.quantity}\n'
-                          'FOC Qty: ${product.focQuantity}\n'
-                          'Amount: ${product.getPrice()}')),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                margin: EdgeInsets.only(right: 8.0),
-                width: 80,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(style: BorderStyle.solid, width: 0.5)),
-                child: TextField(
-                  controller: TextEditingController(
-                      text: product.focQuantity.toString()),
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'FOC'),
-                  onChanged: (value) => passEvent(
-                    context,
-                    FOCQuantityChanged(
-                      productId: product.productId,
-                      quantity: int.parse(value ?? '0'),
-                    ),
+  Widget getCartItemsWidgets(Product product) {
+    final quantityController =
+        TextEditingController(text: product.quantity.toString());
+    final focController =
+        TextEditingController(text: product.focQuantity.toString());
+    quantityController.selection = TextSelection(
+        baseOffset: quantityController.text.length,
+        extentOffset: quantityController.text.length);
+
+    focController.selection = TextSelection(
+        baseOffset: focController.text.length,
+        extentOffset: focController.text.length);
+    return AppTheme.card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+                child: AppTheme.text(
+                    text: 'ItemName:${product.title}\n'
+                        'Unit Price: ${product.packPrice}\n'
+                        'Quantity: ${product.quantity}\n'
+                        'FOC Qty: ${product.focQuantity}\n'
+                        'Amount: ${product.getPrice()}')),
+            Container(
+              padding: EdgeInsets.all(8.0),
+              margin: EdgeInsets.only(right: 8.0),
+              width: 80,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(style: BorderStyle.solid, width: 0.5)),
+              child: TextField(
+                controller: focController,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'FOC'),
+                onChanged: (value) => passEvent(
+                  context,
+                  FOCQuantityChanged(
+                    productId: product.productId,
+                    quantity: int.tryParse(value) ?? 0,
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                margin: EdgeInsets.only(right: 8.0),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(style: BorderStyle.solid, width: 0.5)),
-                width: 80,
-                child: TextField(
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Quantity',
-                  ),
-                  onChanged: (value) => passEvent(
-                    context,
-                    QuantityChanged(
-                      productId: product.productId,
-                      quantity: int.parse(value.isEmpty ? '0' : value),
-                    ),
+            ),
+            Container(
+              padding: EdgeInsets.all(8.0),
+              margin: EdgeInsets.only(right: 8.0),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(style: BorderStyle.solid, width: 0.5)),
+              width: 80,
+              child: TextField(
+                controller: quantityController,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Quantity',
+                ),
+                onChanged: (value) => passEvent(
+                  context,
+                  QuantityChanged(
+                    productId: product.productId,
+                    quantity: int.tryParse(value) ?? 0,
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.close,
-                  color: Colors.blue,
-                ),
-                onPressed: () => passEvent(
-                    context, ItemRemoveEvent(productId: product.productId)),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Colors.blue,
               ),
-            ],
-          ),
+              onPressed: () => passEvent(
+                  context, ItemRemoveEvent(productId: product.productId)),
+            ),
+          ],
         ),
-      );
+      ),
+    );
+  }
 }

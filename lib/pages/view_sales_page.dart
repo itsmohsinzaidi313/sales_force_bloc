@@ -10,14 +10,86 @@ import 'package:sales_force/shared/app_theme.dart';
 class ViewSalesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final fromDateController = TextEditingController(text: '');
+    final toDateController = TextEditingController(text: '');
     return Scaffold(
-      appBar: AppBar(title: Text('View Sales')),
+      appBar: AppBar(
+        title: Text('View Sales'),
+        bottom: AppBar(
+          backgroundColor: Colors.blue,
+          leading: SizedBox(),
+          title: Row(
+            children: [
+              Expanded(
+                child: ListTile(
+                  leading: Icon(Icons.calendar_today, color: Colors.white),
+                  title: TextField(
+                    keyboardType: TextInputType.datetime,
+                    controller: fromDateController,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'From Date',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () async =>
+                        fromDateController.text = await getDate(context),
+                    onChanged: (value) => DateTime.tryParse(value) == null
+                        ? AppTheme.snackbar(
+                            context, 'Please enter valid from date')
+                        : value,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListTile(
+                  leading: Icon(Icons.calendar_today, color: Colors.white),
+                  title: TextField(
+                    keyboardType: TextInputType.datetime,
+                    controller: toDateController,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'To Date',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () async =>
+                        toDateController.text = await getDate(context),
+                    onChanged: (value) => DateTime.tryParse(value) == null
+                        ? AppTheme.snackbar(
+                            context, 'Please enter valid from date')
+                        : value,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  DateTime fromDate =
+                          DateTime.tryParse(fromDateController.text),
+                      toDate = DateTime.tryParse(fromDateController.text);
+                  if (fromDate != null && toDate != null) {
+                    if (fromDate.isBefore(toDate) ||
+                        fromDate.isAtSameMomentAs(toDate)) {
+                      passEvent(
+                        context,
+                        SearchSalesRecord(
+                            fromDate: fromDateController.text,
+                            toDate: toDateController.text),
+                      );
+                    } else {
+                      AppTheme.snackbar(
+                          context, "'From date' cannot be after 'To Date'");
+                    }
+                  } else {
+                    AppTheme.snackbar(context, 'Please select valid dates.');
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Container(
         color: AppTheme.backgroundColor,
-        // decoration: BoxDecoration(
-        //     image: DecorationImage(
-        //         image: AssetImage(AppTheme.backgroundImage),
-        //         repeat: ImageRepeat.repeat)),
         child: BlocConsumer<ViewSalesBloc, ViewSalesState>(
           listener: (context, state) {
             if (state is ViewSaleDetailState) {
@@ -32,12 +104,20 @@ class ViewSalesPage extends StatelessWidget {
                 children: getSalesRecordWidget(context, state.masterList),
               );
             } else {
-              return AppTheme.progIndicator;
+              return ListView(
+                children: getSalesRecordWidget(context, []),
+              );
             }
           },
         ),
       ),
     );
+  }
+
+  Future<String> getDate(BuildContext context) async {
+    DateTime datetime =
+        (await AppTheme.showDateTimeChoose(context)) ?? DateTime.now();
+    return datetime.toIso8601String().substring(0, 10);
   }
 
   List<Widget> getSalesRecordWidget(
@@ -61,83 +141,22 @@ class ViewSalesPage extends StatelessWidget {
         onTap: () => passEvent(context,
             LoadSaleDetail(masterId: e[TableOrderMaster.id].toString())),
         child: Card(
-          child: Container(
-            height: 150,
-            child: Column(
-              children: <Widget>[
-//                Positioned(
-//                  top: 0.0,
-//                  left: 0.0,
-//                  child: ListTile(title: Text('Date:',
-//                    style: AppTheme.textStyle(fontSize: 24)),
-//                  subtitle: Text('${e['createdon']}',
-//                      style: AppTheme.textStyle(fontSize: 18)),),),
-//                Positioned(
-//                  bottom: 0.0,
-//                  left: 0.0,
-//                  child: ListTile(title: Text('Receivable:',
-//                      style: AppTheme.textStyle(fontSize: 24)), subtitle: Text('${e['order_total']}',
-//                      style: AppTheme.textStyle(fontSize: 18))),
-//                ),
-                ListTile(
-                  title: Text('Date:', style: AppTheme.textStyle(fontSize: 24)),
-                  subtitle: Text('${e[TableOrderMaster.createdOn]}',
-                      style: AppTheme.textStyle(fontSize: 18)),
-                  trailing: Icon(Icons.info, color: Colors.grey),
-                ),
-                ListTile(
-                  title: Text('Receivable:',
-                      style: AppTheme.textStyle(fontSize: 24)),
-                  subtitle: Text('${e[TableOrderMaster.total]}',
-                      style: AppTheme.textStyle(fontSize: 18)),
-                  trailing: icon,
-//                Row(children: <Widget>[
-//                  Expanded(
-//                      child: ),
-//
-//                ]),
-//              ListTile(title: Text('Before Discount:',
-//                  style: AppTheme.textStyle(fontSize: 24)), subtitle: Text(
-//                '${e['order_amount']}',
-//                style: AppTheme.textStyle(fontSize: 18),
-//              ),),
-//                Row(children: <Widget>[
-//                  Expanded(
-//                      child: Text('Before Discount:',
-//                          style: AppTheme.textStyle(fontSize: 24))),
-//                  Text(
-//                    '${e['order_amount']}',
-//                    style: AppTheme.textStyle(fontSize: 24),
-//                  )
-//                ]),
-//                ListTile(title: Text('Discount:',
-//                          style: AppTheme.textStyle(fontSize: 24)), subtitle: Text('${e['order_discount']}',
-//                      style: AppTheme.textStyle(fontSize: 18)),),
-//                Row(children: <Widget>[
-//                  Expanded(
-//                      child: Text('Discount:',
-//                          style: AppTheme.textStyle(fontSize: 24))),
-//                  Text('${e['order_discount']}',
-//                      style: AppTheme.textStyle(fontSize: 24))
-//                ]),
-
-//                Row(children: <Widget>[
-//                  Expanded(
-//                      child: Text('Receivable:',
-//                          style: AppTheme.textStyle(fontSize: 24))),
-//                  Text('${e['order_total']}',
-//                      style: AppTheme.textStyle(fontSize: 24))
-//                ]),
-//                Row(children: <Widget>[
-//                  Expanded(
-//                      child: Text('Order Status:',
-//                          style: AppTheme.textStyle(fontSize: 24))),
-//                  Text('${e['order_status']}',
-//                      style: AppTheme.textStyle(fontSize: 24))
-//                ]),
-                )
-              ],
-            ),
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                title: Text('Date:', style: AppTheme.textStyle(fontSize: 24)),
+                subtitle: Text('${e[TableOrderMaster.createdOn]}',
+                    style: AppTheme.textStyle(fontSize: 18)),
+                trailing: Icon(Icons.info, color: Colors.grey),
+              ),
+              ListTile(
+                title: Text('Receivable:',
+                    style: AppTheme.textStyle(fontSize: 24)),
+                subtitle: Text('${e[TableOrderMaster.total]}',
+                    style: AppTheme.textStyle(fontSize: 18)),
+                trailing: icon,
+              )
+            ],
           ),
         ),
       ));
@@ -146,10 +165,18 @@ class ViewSalesPage extends StatelessWidget {
       widgets.add(Card(
         child: Padding(
           padding: EdgeInsets.all(30.0),
-          child: AppTheme.text(
-              text: 'No Data Found.',
-              fontSize: 20,
-              fontWeight: FontWeight.bold),
+          child: Column(
+            children: [
+              AppTheme.text(
+                  text: 'No Data Found.',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+              AppTheme.text(
+                  text:
+                      'Please select from/to date and press search to find your sales record.',
+                  color: Colors.grey)
+            ],
+          ),
         ),
       ));
     return widgets;

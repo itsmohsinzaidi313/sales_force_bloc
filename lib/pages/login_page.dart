@@ -59,6 +59,7 @@ class LoginPage extends StatelessWidget {
           child: ListView(
             children: <Widget>[
               Container(child: BlocBuilder<LoginBloc, LoginState>(
+                buildWhen: (previous, current) => current is NewUser || current is SavedUser,
                 builder: (context, state) {
                   if (state is SavedUser) {
                     return LoginButton(email: state.email);

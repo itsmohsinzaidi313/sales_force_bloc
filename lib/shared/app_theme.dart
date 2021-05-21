@@ -312,4 +312,10 @@ class AppTheme {
       );
     });
   }
+
+  static Future<DateTime> showDateTimeChoose(BuildContext context) => showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 1),
+      lastDate: DateTime(DateTime.now().year + 5));
 }

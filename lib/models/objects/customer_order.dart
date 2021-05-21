@@ -17,20 +17,30 @@ class Order {
   PAYMENTMODE paymentmode;
   List<Product> get cartItems => items ?? [];
 
-  void setQuantity(String productId, int quantity) =>
-      items.where((p) => p.productId == productId).first.quantity = quantity;
+  void setQuantity(String productId, int quantity) {
+    items.where((p) => p.productId == productId).first.quantity = quantity;
+  }
 
-  void setFOCQuantity(String productId, int focQuantity) =>
-      items.where((p) => p.productId == productId).first.focQuantity =
-          focQuantity;
+  void setFOCQuantity(String productId, int focQuantity) {
+    final p = items.where((p) => p.productId == productId).first;
+    p.focQuantity = focQuantity;
+    p.focOverride = true;
+  }
 
   void addCartItem(Product item) {
     if (items == null) items = [];
     bool itemExists = false;
     for (var i = 0; i < items.length; i++) {
       if (items[i].productId == item.productId) {
-        items[i].quantity++;
+        final p = items[i];
+        p.quantity++;
         itemExists = true;
+
+        if (!p.focOverride &&
+            p.quantity >= p.foc.start &&
+            p.quantity <= p.foc.end) {
+          p.focQuantity = p.foc.quantity;
+        }
         break;
       }
     }
