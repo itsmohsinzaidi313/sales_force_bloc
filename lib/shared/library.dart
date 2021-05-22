@@ -72,7 +72,9 @@ class Library {
       return null;
     }
   }
-
+  /// Creates database on the device
+  /// When [reinstall] parameter is true, all tables will be dropped and recreated
+  /// When [forceUpdate] is true all tables will be deleted (except the tables defined as skip) and all record is imported from web server
   static Future<void> install(BuildContext context,
       {bool reinstall = false, bool forceUpdate = false}) async {
     if (reinstall) {

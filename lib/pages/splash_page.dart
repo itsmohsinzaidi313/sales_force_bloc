@@ -82,18 +82,6 @@ class SplashPage extends StatelessWidget {
                         ),
                       );
                     }
-                    // return Card(
-                    //   child: SizedBox(
-                    //     width: Config.deviceDisplayWidth(context) * 0.9,
-                    //     child: ListTile(
-                    //       isThreeLine: true,
-                    //       title: Text(
-                    //           state.title == null ? 'Operation' : state.title),
-                    //       subtitle: Text(
-                    //           state.message == null ? 'Updates' : state.message),
-                    //     ),
-                    //   ),
-                    // );
                   },
                 )
               ],
@@ -115,13 +103,13 @@ class SplashPage extends StatelessWidget {
 
   Timer loadLoginView(BuildContext context) {
     return Timer(Duration(seconds: Config.SplashTimeOut),
-        () => Navigator.of(context).pushReplacementNamed('/login'));
+        () => Navigator.of(context).pushReplacementNamed('/login'),);
   }
 
   Future<void> startUp(BuildContext context) async {
     await Library.install(
       context,
-      forceUpdate: true,
+      // forceUpdate: true,
       // reinstall: true,
     );
     await Future.delayed(Duration(seconds: 2));
