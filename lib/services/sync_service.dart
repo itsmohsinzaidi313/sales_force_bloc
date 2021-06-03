@@ -49,8 +49,9 @@ class SSyncService extends ServiceCommon {
     dateTime = new DateTime(dateTime.year, dateTime.month, dateTime.day - 1);
     String url =
         '${Config.syncAPILink}${DateFormat('yyyy-MM-dd,HH:mm:ss').format(dateTime)}';
-    Response response = await get(Uri.parse(url))
-        .timeout(Duration(seconds: Config.ConnectionTimeout), onTimeout: () => null);
+    Response response = await get(Uri.parse(url)).timeout(
+        Duration(seconds: Config.ConnectionTimeout),
+        onTimeout: () => null);
     if (response != null && response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
       if (data['data'] != null) {
@@ -84,8 +85,8 @@ class SSyncService extends ServiceCommon {
       await getSyncApis();
       List<SyncPacket> list = await getApis();
       list.forEach((e) async {
-        Response response = await get(Uri.parse(e.url))
-            .timeout(Duration(seconds: Config.ConnectionTimeout), onTimeout: () {
+        Response response = await get(Uri.parse(e.url)).timeout(
+            Duration(seconds: Config.ConnectionTimeout), onTimeout: () {
           log('CONNECTION TIMEOUT\nSYNC FAILED');
           return null;
         });
@@ -289,6 +290,7 @@ class SSyncService extends ServiceCommon {
   Future<void> updateUser(Database db, User user, String serverId) async {
     try {
       await db.update(TableUsers.tableName, user.getMap());
+      updateSyncApiStatus(serverId);
       log('USER UPDATED');
     } catch (e) {
       log('USER UPDAT FAILED', error: e);
@@ -299,6 +301,7 @@ class SSyncService extends ServiceCommon {
       Database db, Customer customer, String serverId) async {
     try {
       await db.update(TableCustomer.tableName, customer.getMap());
+      updateSyncApiStatus(serverId);
       log('CUSTOMER UPDATED');
     } catch (e) {
       log('CUSTOMER UPDATE FAILED');

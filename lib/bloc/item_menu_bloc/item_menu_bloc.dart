@@ -101,32 +101,32 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
   Future<void> loadItems() async {
     customerOrder.reset();
     categories = await ItemsMenuRepo.repo.getAllCategories(Config.user.userId);
-    products = await ItemsMenuRepo.repo.getAllProducts(Config.user.userId);
+    products = await ItemsMenuRepo.repo.getAllProducts(categories);
+
     productPrices = await ItemsMenuRepo.repo.getProductPrices();
     productFOC = await ItemsMenuRepo.repo.getProductFoc();
-
     products.forEach((p) {
-      ProductPrices pp = productPrices
-          .where((pp) =>
-              pp.productId == p.productId &&
-              pp.customerGroupId == customerOrder.customer.customerGroupId)
-          .first;
+      ProductPrices pp = productPrices.singleWhere(
+        (pp) =>
+            pp.productId == p.productId &&
+            pp.customerGroupId == customerOrder.customer.customerGroupId,
+        orElse: () => ProductPrices(
+            customerGroupId: p.customerGroupId,
+            productId: p.productId,
+            cashPrice: p.packPrice,
+            creditPrice: p.creditPrice),
+      );
       if (customerOrder.paymentmode == PAYMENTMODE.CASH) {
         p.price = pp.cashPrice;
       } else if (customerOrder.paymentmode == PAYMENTMODE.CREDIT) {
         p.price = pp.creditPrice;
       }
 
-      List<ProductFoc> x = productFOC
-              .where((pFOC) => pFOC.productId == int.parse(p.productId))
-              .toList() ??
-          [];
-      ProductFoc foc = ProductFoc(
-          start: 0, end: 0, quantity: 0, productId: int.parse(p.productId));
-      if (x.isNotEmpty) {
-        foc = x.first;
-      }
-      p.foc = foc;
+      p.foc = productFOC.singleWhere(
+        (pFOC) => pFOC.productId == int.parse(p.productId),
+        orElse: () => ProductFoc(
+            start: 0, end: 0, quantity: 0, productId: int.parse(p.productId)),
+      );
     });
   }
 

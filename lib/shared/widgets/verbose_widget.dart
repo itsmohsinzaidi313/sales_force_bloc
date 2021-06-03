@@ -18,15 +18,21 @@ class VerboseWidgets {
                         leading: Icon(Icons.info),
                         title: Text(
                           state.title.toUpperCase(),
-                          style: TextStyle(fontSize: 24),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
                         ),
                         subtitle: Column(
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  state.message,
-                                  style: TextStyle(fontSize: 18),
+                                Expanded(
+                                  child: Text(
+                                    state.message,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 12),
+                                  ),
                                 )
                               ],
                             ),

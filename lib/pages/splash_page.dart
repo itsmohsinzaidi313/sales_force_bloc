@@ -26,7 +26,7 @@ class SplashPage extends StatelessWidget {
             children: [
               Center(
                   child: Image.asset(
-                'images/icon2.jpg',
+                'images/devaj_logo_small.png',
                 scale: 1,
               )),
             ],
@@ -87,32 +87,36 @@ class SplashPage extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Image.asset(
-                'images/devaj_logo_small.png',
-                scale: 2,
-              ),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: [
+          //     Image.asset(
+          //       'images/devaj_logo_small.png',
+          //       scale: 2,
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );
   }
 
   Timer loadLoginView(BuildContext context) {
-    return Timer(Duration(seconds: Config.SplashTimeOut),
-        () => Navigator.of(context).pushReplacementNamed('/login'),);
+    return Timer(
+      Duration(seconds: Config.SplashTimeOut),
+      () => Navigator.of(context).pushReplacementNamed('/login'),
+    );
   }
 
   Future<void> startUp(BuildContext context) async {
-    await Library.install(
+    final status = await Library.install(
       context,
       // forceUpdate: true,
-      // reinstall: true,
+      reinstall: true,
     );
-    await Future.delayed(Duration(seconds: 2));
-    Navigator.of(context).pushReplacementNamed('/login');
+    if (status) {
+      await Future.delayed(Duration(seconds: 2));
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 }

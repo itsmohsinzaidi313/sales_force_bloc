@@ -190,7 +190,7 @@ class MenuPage extends StatelessWidget {
             buttonColor: redColor,
             onPressed: () => onNewVisitsPressed(context)),
         AppTheme.roundIconButton(
-            text: 'NEW CUSTOMER',
+            text: 'ADD CUSTOMER',
             textStyle:
                 TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             icon: Icon(Icons.person_add_alt_1, color: Colors.white),

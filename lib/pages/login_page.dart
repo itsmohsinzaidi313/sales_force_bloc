@@ -21,7 +21,7 @@ class LoginPage extends StatelessWidget {
         if (state is LoginSuccessful) {
           AppTheme.snackbar(context, state.message);
           Config.database.then((value) => ServiceControl.control
-              .initializeDatabaseDependent(database: value));
+              .initializeDatabaseDependentServices(database: value));
           Navigator.pushNamedAndRemoveUntil(context, '/menu', (route) => false);
         } else if (state is InvalidSubmission) {
           AppTheme.snackbar(context, state.message);

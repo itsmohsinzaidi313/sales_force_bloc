@@ -17,13 +17,17 @@ class ViewSalesPage extends StatelessWidget {
         title: Text('View Sales'),
         bottom: AppBar(
           backgroundColor: Colors.blue,
+          leadingWidth: 0,
           leading: SizedBox(),
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Expanded(
+              Flexible(
+                fit: FlexFit.tight,
                 child: ListTile(
                   leading: Icon(Icons.calendar_today, color: Colors.white),
                   title: TextField(
+                    readOnly: true,
                     keyboardType: TextInputType.datetime,
                     controller: fromDateController,
                     style: TextStyle(color: Colors.white),
@@ -40,10 +44,12 @@ class ViewSalesPage extends StatelessWidget {
                   ),
                 ),
               ),
-              Expanded(
+              Flexible(
+                fit: FlexFit.tight,
                 child: ListTile(
                   leading: Icon(Icons.calendar_today, color: Colors.white),
                   title: TextField(
+                    readOnly: true,
                     keyboardType: TextInputType.datetime,
                     controller: toDateController,
                     style: TextStyle(color: Colors.white),

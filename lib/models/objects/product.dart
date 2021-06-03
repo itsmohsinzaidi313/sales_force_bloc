@@ -9,6 +9,7 @@ class Product {
   String userId;
   String title;
   String packPrice;
+  String creditPrice;
   String packPerCarton;
   String cartonPrice;
   String pricePerLiter;
@@ -34,6 +35,7 @@ class Product {
       this.userId,
       this.title,
       this.packPrice,
+      this.creditPrice,
       this.packPerCarton,
       this.cartonPrice,
       this.pricePerLiter,
@@ -55,6 +57,7 @@ class Product {
     this.userId = product.userId;
     this.title = product.title;
     this.packPrice = product.packPrice;
+    this.creditPrice = product.creditPrice;
     this.packPerCarton = product.packPerCarton;
     this.cartonPrice = product.cartonPrice;
     this.pricePerLiter = product.pricePerLiter;
@@ -77,6 +80,7 @@ class Product {
     this.userId = i[0]['user_id'].toString();
     this.title = i[0]['product_title'];
     this.packPrice = i[0]['product_pack_price'].toString();
+    this.creditPrice = i[0]['product_credit_price'].toString();
     this.packPerCarton = i[0]['product_packs_per_carton'].toString();
     this.cartonPrice = i[0]['product_carton_price'].toString();
     this.pricePerLiter = i[0]['product_price_per_liter'].toString();

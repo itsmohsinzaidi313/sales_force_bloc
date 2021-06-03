@@ -25,7 +25,7 @@ class SPostInvoice extends ServiceCommon {
     initiate();
   }
 
-  _uploadInvoices() async {
+  void _uploadInvoices() async {
     try {
       List<Map<String, dynamic>> invoices = await db.query(
           TablePaidInvoices.tableName,

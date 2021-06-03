@@ -54,13 +54,13 @@ class Sql {
         TableLocation(db, bloc),
       ];
 
-  Future<void> initDatabase() async {
+  Future<Database> initDatabase() async {
     try {
       PermissionStatus status = await Permission.storage.request();
 
       if (status.isGranted) {
         if (Config.DATABASE_NAME != '') {
-          _database = await openDatabase( await Config.dbFullPath,
+          _database = await openDatabase(await Config.dbFullPath,
               singleInstance: true,
               version: Config.DATABASE_VERSION,
               onCreate: onCreate,
@@ -70,15 +70,18 @@ class Sql {
           _bloc.add(VerboseNewEvent(
               title: 'SQL',
               message: 'Database Version: ${version.toString()}'));
+          return _database;
         } else {
           throw Exception(
             'DATABASE NAME CANNOT BE EMPTY',
           );
         }
       }
+      return null;
     } catch (e) {
       _bloc.add(VerboseNewEvent(title: 'SQL', message: e.toString()));
       log('SQL', error: e);
+      return null;
     }
   }
 

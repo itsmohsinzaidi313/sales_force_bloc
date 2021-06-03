@@ -86,13 +86,13 @@ class SPostOrder extends ServiceCommon {
         };
         bool status = await Library.uploadToServer(Config.putOrderVisitAPILink,
             jsonString: map.toString());
-        db.update(TableOrderMaster.tableName,
+        await db.update(TableOrderMaster.tableName,
             {TableOrderMaster.status: status ? 1 : 0},
             where: '${TableOrderMaster.id} = ?',
             whereArgs: [e['order_android_id']]);
-        db.update(TableVisits.tableName, {TableVisits.isUpload: status ? 1 : 0},
-            where: '${TableVisits.tableName} = ?',
-            whereArgs: [e['order_taken_android_id']]);
+        await db.update(TableVisits.tableName, {TableVisits.isUpload: status ? 1 : 0},
+           where: '${TableVisits.isOrder} = ? and ${TableVisits.orderId} = ?',
+            whereArgs: [1, e['order_android_id']]);
       });
     cycleComplete = true;
   }

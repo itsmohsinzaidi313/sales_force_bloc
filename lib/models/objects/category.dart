@@ -31,9 +31,8 @@ class Category {
   List<CategoryPermissions> getCategoryPermissions() {
     List<CategoryPermissions> list = [];
     _salesman.forEach((e) {
-      list.add(new CategoryPermissions(
-          categoryId: e['product_category_id'].toString(),
-          userId: e['user_id'].toString()));
+      list.add(CategoryPermissions(
+          categoryId: e['product_category_id'], userId: e['user_id']));
     });
     return list;
   }

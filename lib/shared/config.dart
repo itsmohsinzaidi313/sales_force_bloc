@@ -9,8 +9,9 @@ class Config {
   static const String DATABASE_NAME = 'SaleForce.db';
   static User user;
   static const String serverAddress = '72.52.142.19';
-  static const String apiPrefix =
-      'http://$serverAddress/ddf-pvt-ltd/webservice/';
+  // static const String apiPrefix =
+  //     'http://$serverAddress/ddf-pvt-ltd/webservice/';
+  static const String apiPrefix = 'http://$serverAddress/sfms/jade/webservice/';
   static const String installApi = apiPrefix + 'api.php?action=install';
   static String putInvoiceAPILink = apiPrefix +
       'api.php?action=put&module=invoice_payment&user=${user.userId}';
@@ -19,7 +20,8 @@ class Config {
   static String putTrackingAPILink =
       apiPrefix + 'api.php?action=put&module=tracking&user=${user.userId}';
   static String syncAPILink = apiPrefix + 'api.php?action=sync&createdon=';
-  static String createCustomerAPILink = apiPrefix + 'api.php?action=put&module=customer&user=${user.userId}';
+  static String createCustomerAPILink =
+      apiPrefix + 'api.php?action=put&module=customer&user=${user.userId}';
 
   static const int ServiceCycleDelay = 10; // seconds
   static const int SplashTimeOut = 5; // seconds

@@ -19,13 +19,9 @@ class ImportData {
   final Map data;
   final VerboseBloc bloc;
   int _count = 1;
-  ImportData(
-      {this.status, this.message, this.data, this.bloc}) {
-
-  }
+  ImportData({this.status, this.message, this.data, this.bloc});
 
   Future<bool> init(Database _database) async {
-    
     bool importSuccessful = true;
     try {
       if (importSuccessful)
@@ -240,6 +236,7 @@ class ImportData {
         TableProducts.userId: item['user_id'],
         TableProducts.title: item['product_title'],
         TableProducts.packPrice: item['product_pack_price'],
+        TableProducts.creditPrice: item['product_credit_price'],
         TableProducts.packsPerCarton: item['product_packs_per_carton'],
         TableProducts.cartonPrice: item['product_carton_price'],
         TableProducts.literPrice: item['product_price_per_liter'],

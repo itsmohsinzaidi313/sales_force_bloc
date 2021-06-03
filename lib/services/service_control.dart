@@ -19,7 +19,7 @@ class ServiceControl {
   static ServiceControl control = ServiceControl._internal();
   ServiceControl._internal();
 
-  void initializeDatabaseDependent({Database database}) async {
+  void initializeDatabaseDependentServices({Database database}) async {
     try {
       this.invoiceService = SPostInvoice(database);
       this.orderService = SPostOrder(database);

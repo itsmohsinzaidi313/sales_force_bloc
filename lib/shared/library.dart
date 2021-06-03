@@ -55,6 +55,7 @@ class Library {
       Response response = await get(Uri.parse(Config.installApi)).timeout(
           Duration(seconds: Config.ConnectionTimeout),
           onTimeout: () => null);
+      log(Config.installApi, name: 'fetchData');
       log('SERVER RESPONSE: ${response.statusCode}', name: 'Library.fetchData');
       if (response != null && response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -66,16 +67,20 @@ class Library {
             data: data['data'],
             bloc: bloc);
       }
-      return null;
+      return ImportData(
+          status: 'failure',
+          message: 'Server Error\nStatusCode: ${response.statusCode}',
+          data: {});
     } catch (e) {
       log('ERROR ON fetchData', error: e);
       return null;
     }
   }
+
   /// Creates database on the device
   /// When [reinstall] parameter is true, all tables will be dropped and recreated
   /// When [forceUpdate] is true all tables will be deleted (except the tables defined as skip) and all record is imported from web server
-  static Future<void> install(BuildContext context,
+  static Future<bool> install(BuildContext context,
       {bool reinstall = false, bool forceUpdate = false}) async {
     if (reinstall) {
       await deleteDatabase(await Config.dbFullPath);
@@ -90,19 +95,27 @@ class Library {
       final import = await Library.fetchData(
           bloc: context
               .read<VerboseBloc>()); // FETCHES DATA AND INSTANCIATES ImportData
-      bool x = await import
-          .init(await Config.database); // WRITES FETCHED DATA TO DATABASE
-      if (x) {
-        await Future.delayed(Duration(seconds: 2));
-        context.read<VerboseBloc>().add(
-            VerboseNewEvent(title: '', message: 'Installation successful.'));
-        log('Installation completed', name: 'Library.install');
+      if (import.status == 'success') {
+        bool x = await import
+            .init(await Config.database); // WRITES FETCHED DATA TO DATABASE
+        if (x) {
+          await Future.delayed(Duration(seconds: 2));
+          context.read<VerboseBloc>().add(
+              VerboseNewEvent(title: '', message: 'Installation successful.'));
+          log('Installation completed', name: 'Library.install');
+          return true;
+        } else {
+          await Future.delayed(Duration(seconds: 2));
+          context
+              .read<VerboseBloc>()
+              .add(VerboseNewEvent(title: '', message: 'Installation failed.'));
+          log('Installation failed', name: 'Library.install');
+        }
       } else {
-        await Future.delayed(Duration(seconds: 2));
         context
             .read<VerboseBloc>()
-            .add(VerboseNewEvent(title: '', message: 'Installation failed.'));
-        log('Installation failed', name: 'Library.install');
+            .add(VerboseNewEvent(title: '', message: import.message));
+        log(import.message, name: 'Library.install');
       }
     } else {
       context
@@ -112,7 +125,9 @@ class Library {
       context
           .read<VerboseBloc>()
           .add(VerboseNewEvent(title: '', message: 'Please Wait...'));
+      return true;
     }
+    return false;
   }
 
   static Future<bool> logout(String userId) async {
