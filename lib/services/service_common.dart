@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
+
 import '../shared/config.dart';
 
 abstract class ServiceCommon {
@@ -9,6 +11,7 @@ abstract class ServiceCommon {
   bool active = false;
   bool cycleComplete = true;
   int duration = Config.ServiceCycleDelay;
+  VerboseBloc verboseBloc;
 
   Future<void> perform();
 
@@ -44,7 +47,7 @@ abstract class ServiceCommon {
     if (active && cycleComplete) {
       try {
         log('RESPONDING', name: '$name');
-        perform();
+        await perform();
       } catch (e) {
         log('SERVICE $name CRASHED: $e', name: 'ServiceCommon');
         cycleComplete = true;

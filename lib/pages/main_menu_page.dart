@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
+import 'package:sales_force/database/tables/customer_table.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/constants.dart';
@@ -75,42 +77,44 @@ class MenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () => _onWillPop(context),
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text('MAIN MENU'),
-            actions: <Widget>[
-              PopupMenuButton<String>(
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(bottom: Radius.circular(20.0))),
-                  icon: Icon(Icons.more_vert),
-                  onSelected: (value) => choice(context, value),
-                  itemBuilder: (BuildContext context) {
-                    return choices.map((String choice) {
-                      return PopupMenuItem(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  })
-            ],
-          ),
-          body: Container(
-            color: AppTheme.backgroundColor,
-            // decoration: BoxDecoration(
-            //     image: DecorationImage(
-            //         image: AssetImage(AppTheme.backgroundImage),
-            //         repeat: ImageRepeat.repeat)),
-            child: GridView.count(
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.08,
-                  right: MediaQuery.of(context).size.width * 0.08,
-                  top: 20,
-                  bottom: 20),
-              crossAxisCount: 2,
-              crossAxisSpacing: MediaQuery.of(context).size.width * 0.05,
-              mainAxisSpacing: MediaQuery.of(context).size.height * 0.05,
-              children: getDashboardButtons(context),
+        child: BlocListener<VerboseBloc, VerboseState>(
+          listenWhen: (previous, current) => current is VerboseSnackBarState,
+          listener: (context, state) {
+            AppTheme.snackbar(context, state.message);
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('MAIN MENU'),
+              actions: <Widget>[
+                PopupMenuButton<String>(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(20.0))),
+                    icon: Icon(Icons.more_vert),
+                    onSelected: (value) => choice(context, value),
+                    itemBuilder: (BuildContext context) {
+                      return choices.map((String choice) {
+                        return PopupMenuItem(
+                          value: choice,
+                          child: Text(choice),
+                        );
+                      }).toList();
+                    })
+              ],
+            ),
+            body: Container(
+              color: AppTheme.backgroundColor,
+              child: GridView.count(
+                padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.08,
+                    right: MediaQuery.of(context).size.width * 0.08,
+                    top: 20,
+                    bottom: 20),
+                crossAxisCount: 2,
+                crossAxisSpacing: MediaQuery.of(context).size.width * 0.05,
+                mainAxisSpacing: MediaQuery.of(context).size.height * 0.05,
+                children: getDashboardButtons(context),
+              ),
             ),
           ),
         ));
@@ -343,11 +347,12 @@ class MenuPage extends StatelessWidget {
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                       onPressed: () => onCreateCustomerPressed(
-                            shopName: shopName,
-                            firstName: firstName,
-                            lastName: lastName,
-                            contact: contact,
-                            address: address,
+                            context,
+                            shopName: shopName ?? '',
+                            firstName: firstName ?? '',
+                            lastName: lastName ?? '',
+                            contact: contact ?? '',
+                            address: address ?? '',
                           )),
                 ),
               ],
@@ -358,12 +363,12 @@ class MenuPage extends StatelessWidget {
     );
   }
 
-  void onCreateCustomerPressed(
-      {String shopName,
-      String firstName,
-      String lastName,
-      String contact,
-      String address}) async {
+  void onCreateCustomerPressed(BuildContext context,
+      {String shopName = '',
+      String firstName = '',
+      String lastName = '',
+      String contact = '',
+      String address = ''}) async {
     if (shopName.isNotEmpty &&
         firstName.isNotEmpty &&
         contact.isNotEmpty &&
@@ -377,21 +382,43 @@ class MenuPage extends StatelessWidget {
               onTimeout: () => null);
       if (position != null) {
         try {
-          (await Config.database).insert('customer', {
-            'user_id': Config.user.userId,
-            'customer_first_name': firstName,
-            'customer_last_name': lastName,
-            'customer_mobile': contact,
-            'customer_shop_name': shopName,
-            'customer_address1': address,
-            'shop_lat': position.latitude.toString(),
-            'shop_long': position.longitude.toString(),
-            'status': '0'
+          final position = await Geolocator.getCurrentPosition();
+          log({
+            TableCustomer.userId: Config.user.userId,
+            TableCustomer.firstName: firstName,
+            TableCustomer.lastName: lastName,
+            TableCustomer.mobile: contact,
+            TableCustomer.shopName: shopName,
+            TableCustomer.address: address,
+            TableCustomer.shopLat: position.latitude,
+            TableCustomer.shopLong: position.longitude,
+            TableCustomer.status: 0
+          }.toString());
+          int id =
+              await (await Config.database).insert(TableCustomer.tableName, {
+            TableCustomer.userId: Config.user.userId,
+            TableCustomer.firstName: firstName,
+            TableCustomer.lastName: lastName,
+            TableCustomer.mobile: contact,
+            TableCustomer.shopName: shopName,
+            TableCustomer.address: address,
+            TableCustomer.shopLat: position.latitude,
+            TableCustomer.shopLong: position.longitude,
+            TableCustomer.status: 0
           });
+          if (id > 0) {
+            AppTheme.snackbar(context, 'Customer saved.');
+            Navigator.pop(context);
+          } else {
+            AppTheme.snackbar(context, 'Customer cannot be saved.');
+          }
         } catch (e) {
           log('Error', error: e);
+          AppTheme.snackbar(context, '$e');
         }
       }
+    } else {
+      AppTheme.snackbar(context, 'Please fill all fields.');
     }
   }
 }

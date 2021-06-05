@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/tables/customer_table.dart';
 import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/shared/config.dart';
@@ -8,8 +10,9 @@ import 'package:sqflite/sqflite.dart';
 
 class SUploadCustomer extends ServiceCommon {
   Database db;
-  SUploadCustomer(Database db) {
+  SUploadCustomer(Database db, {VerboseBloc bloc}) {
     this.db = db;
+    this.verboseBloc = bloc;
     initiate();
   }
 
@@ -19,26 +22,36 @@ class SUploadCustomer extends ServiceCommon {
   @override
   Future<void> perform() async {
     cycleComplete = false;
-    log('CUSTOMER UPLOAD SERVICE RESPONDING');
     await uploadCustomer();
     cycleComplete = true;
   }
 
   Future<void> uploadCustomer() async {
     try {
-      (await db.rawQuery('select * from customer')).forEach((element) {
-        print(element);
-      });
       List<Map<String, dynamic>> list = await db.query(TableCustomer.tableName,
-          where: '${TableCustomer.status} = ?', whereArgs: ['0']);
+          columns: [
+            '${TableCustomer.id} as android_customer_id',
+            '${TableCustomer.userId}',
+            '${TableCustomer.firstName}',
+            '${TableCustomer.lastName}',
+            '${TableCustomer.mobile} as customer_mobile',
+            '${TableCustomer.shopName}',
+            '${TableCustomer.address}',
+            '${TableCustomer.shopLat}',
+            '${TableCustomer.shopLong}'
+          ],
+          where: '${TableCustomer.status} = ?',
+          whereArgs: [0]);
 
       list.forEach((e) async {
-        log(e.toString());
+        log(jsonEncode(e), name: this.name);
+        log(Config.createCustomerAPILink, name: this.name);
         bool x = await Library.uploadToServer(Config.createCustomerAPILink,
-            jsonString: e.toString());
+            jsonString: jsonEncode(e));
         if (x) {
-          db.update('customer', {'status': '1'},
-              where: 'id = ?', whereArgs: [e['id']]);
+          await db.update('customer', {'status': '1'},
+              where: '${TableCustomer.id} = ?',
+              whereArgs: [e['android_customer_id']]);
         }
       });
     } catch (e) {

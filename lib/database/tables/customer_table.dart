@@ -24,7 +24,10 @@ class TableCustomer extends SqlCommons {
       status = 'status',
       discountType = 'discount_type',
       discount = 'discount',
+      shopLat = 'shop_board_lat',
+      shopLong = 'shop_board_long',
       creditLimit = 'credit_limit';
+      
   static const List<String> columns = [
     id,
     customerId,
@@ -44,7 +47,9 @@ class TableCustomer extends SqlCommons {
     status,
     discountType,
     discount,
-    creditLimit
+    creditLimit,
+    shopLat,
+    shopLong,
   ];
   static const List<String> dataTypes = [
     SqlCommons.INT_PRIMARYKEY,
@@ -63,6 +68,8 @@ class TableCustomer extends SqlCommons {
     SqlCommons.TEXT,
     SqlCommons.TEXT,
     SqlCommons.INTEGER,
+    SqlCommons.REAL,
+    SqlCommons.REAL,
     SqlCommons.REAL,
     SqlCommons.REAL,
     SqlCommons.REAL,

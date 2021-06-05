@@ -38,3 +38,8 @@ class VerboseErrorState extends VerboseState {
   VerboseErrorState({String title, String message, double value})
       : super(title, message, value: value);
 }
+
+class VerboseSnackBarState extends VerboseState {
+  VerboseSnackBarState({String title, String message})
+      : super(title, message, value: 0);
+}

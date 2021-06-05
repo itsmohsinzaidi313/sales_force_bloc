@@ -30,8 +30,8 @@ class VisitRepo {
               "(select ${TableCustomer.firstName} || ' ' ||  ${TableCustomer.lastName} from ${TableCustomer.tableName} where ${TableCustomer.customerId} = ${TableVisits.tableName}.${TableVisits.customerId}) as name",
               "(select ${TableCustomer.shopName} from ${TableCustomer.tableName} where ${TableCustomer.customerId} = ${TableVisits.tableName}.${TableVisits.customerId}) as shop"
             ],
-            where: '${TableVisits.userId} = ?',
-            whereArgs: [int.parse(userId)]));
+            where: '${TableVisits.userId} = ? and ${TableVisits.isOrder} = ?',
+            whereArgs: [int.parse(userId), 0]));
     return list;
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/services/service_control.dart';
 import 'package:sales_force/shared/app_theme.dart';
@@ -35,14 +37,21 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('SETTINGS'),
-        ),
-        body: ListView(
-          children:
-              _listOfExpansions.map((expansionTile) => expansionTile).toList(),
-        ));
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            title: Text('SETTINGS'),
+          ),
+          body: ListView(
+            children: _listOfExpansions
+                .map((expansionTile) => expansionTile)
+                .toList(),
+          )),
+    );
   }
 }
 

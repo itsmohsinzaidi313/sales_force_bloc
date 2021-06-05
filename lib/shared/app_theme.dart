@@ -295,29 +295,34 @@ class AppTheme {
 
   static Widget loadNetworkImage(
       {String url, double height, double width, BoxFit boxFit = BoxFit.fill}) {
-    return Image.network(url,
-        height: height,
-        width: width,
-        fit: boxFit,
-        alignment: Alignment.center, loadingBuilder: (BuildContext context,
-            Widget child, ImageChunkEvent loadingProgress) {
-      if (loadingProgress == null) return child;
-      return Center(
-        child: CircularProgressIndicator(
-          value: loadingProgress.expectedTotalBytes != null
-              ? loadingProgress.cumulativeBytesLoaded /
-                  loadingProgress.expectedTotalBytes
-              : null,
-        ),
-      );
-    });
+    return url == ''
+        ? Image.asset('images/placeholder.png')
+        : Image.network(url,
+            height: height,
+            width: width,
+            fit: boxFit,
+            alignment: Alignment.center, loadingBuilder: (BuildContext context,
+                Widget child, ImageChunkEvent loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              height: height,
+              width: width,
+              child: Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes
+                      : null,
+                ),
+              ),
+            );
+          });
   }
 
-  static Future<DateTime> showDateTimeChoose(BuildContext context) => showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(DateTime.now().year - 1),
-      lastDate: DateTime(DateTime.now().year + 5));
-
-      
+  static Future<DateTime> showDateTimeChoose(BuildContext context) =>
+      showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(DateTime.now().year - 1),
+          lastDate: DateTime(DateTime.now().year + 5));
 }

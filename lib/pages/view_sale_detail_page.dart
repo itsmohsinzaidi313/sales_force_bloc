@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/product.dart';
 import 'package:sales_force/shared/app_theme.dart';
 
@@ -10,16 +12,19 @@ class ViewSaleDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppTheme.appBar(title: 'Sale Detail'),
-      body: Container(
-        color: AppTheme.backgroundColor,
-        // decoration: BoxDecoration(
-        //     image: DecorationImage(
-        //         image: AssetImage(AppTheme.backgroundImage),
-        //         repeat: ImageRepeat.repeat)),
-        child:
-            Center(heightFactor: 1, child: getProductsTableView(detailRecord)),
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
+        appBar: AppTheme.appBar(title: 'Sale Detail'),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: getProductsTableView(detailRecord)),
+        ),
       ),
     );
   }
@@ -29,26 +34,28 @@ class ViewSaleDetail extends StatelessWidget {
       ? Card(
           child: Center(child: Text('No Data')),
         )
-      : DataTable(
-          columns: [
-            DataColumn(label: Text('Product')),
-            DataColumn(label: Text('Price')),
-            DataColumn(label: Text('Quantity')),
-            DataColumn(label: Text('FOC')),
-            DataColumn(label: Text('Total')),
-          ],
-          rows: products
-              .map(
-                (e) => DataRow(cells: [
-                  DataCell(Text(e.title)),
-                  DataCell(Text(e.packPrice)),
-                  DataCell(Text(e.purchasedQuantity)),
-                  DataCell(Text(e.focQuantity.toString())),
-                  DataCell(Text(
-                      '${double.parse(e.packPrice) * double.parse(e.purchasedQuantity)}')),
-                ]),
-              )
-              .toList(),
+      : SingleChildScrollView(
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text('Product')),
+              DataColumn(label: Text('Price')),
+              DataColumn(label: Text('Quantity')),
+              DataColumn(label: Text('FOC')),
+              DataColumn(label: Text('Total')),
+            ],
+            rows: products
+                .map(
+                  (e) => DataRow(cells: [
+                    DataCell(Text(e.title)),
+                    DataCell(Text(e.packPrice)),
+                    DataCell(Text(e.purchasedQuantity)),
+                    DataCell(Text(e.focQuantity.toString())),
+                    DataCell(Text(
+                        '${double.parse(e.packPrice) * double.parse(e.purchasedQuantity)}')),
+                  ]),
+                )
+                .toList(),
+          ),
         );
 
   //LIST VIEW

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/tables/order_detail_table.dart';
 import 'package:sales_force/database/tables/order_master_table.dart';
 import 'package:sales_force/database/tables/visits_table.dart';
@@ -10,8 +11,9 @@ import 'package:sqflite/sqflite.dart';
 
 class SPostOrder extends ServiceCommon {
   Database db;
-  SPostOrder(Database db) {
+  SPostOrder(Database db, {VerboseBloc bloc}) {
     this.db = db;
+    this.verboseBloc = bloc;
     initiate();
   }
 
@@ -21,10 +23,10 @@ class SPostOrder extends ServiceCommon {
   @override
   perform() async {
     cycleComplete = false;
-    uploadOrders();
+    await uploadOrders();
   }
 
-  uploadOrders() async {
+  Future<void> uploadOrders() async {
     List<Map<String, dynamic>> master = await db.query(
         TableOrderMaster.tableName,
         columns: [
@@ -84,15 +86,21 @@ class SPostOrder extends ServiceCommon {
           '${jsonEncode('visit_data')}': jsonEncode(locationMap),
           jsonEncode('order'): [map]
         };
+        log(map.toString(), name: this.name);
         bool status = await Library.uploadToServer(Config.putOrderVisitAPILink,
             jsonString: map.toString());
+            if(status) {
+
         await db.update(TableOrderMaster.tableName,
             {TableOrderMaster.status: status ? 1 : 0},
             where: '${TableOrderMaster.id} = ?',
             whereArgs: [e['order_android_id']]);
-        await db.update(TableVisits.tableName, {TableVisits.isUpload: status ? 1 : 0},
-           where: '${TableVisits.isOrder} = ? and ${TableVisits.orderId} = ?',
+        await db.update(
+            TableVisits.tableName, {TableVisits.isUpload: status ? 1 : 0},
+            where: '${TableVisits.isOrder} = ? and ${TableVisits.orderId} = ?',
             whereArgs: [1, e['order_android_id']]);
+            this.verboseBloc.add(VerboseNotify(message: 'Order Uploaded'));
+            }
       });
     cycleComplete = true;
   }

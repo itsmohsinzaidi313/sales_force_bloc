@@ -7,7 +7,10 @@ class Config {
   // ignore: non_constant_identifier_names
   static const int DATABASE_VERSION = 1;
   static const String DATABASE_NAME = 'SaleForce.db';
-  static User user;
+  static User _user;
+  static get user => _user ?? User(userId: '', email: '', password: '');
+  static set user(User user) => _user = user;
+
   static const String serverAddress = '72.52.142.19';
   // static const String apiPrefix =
   //     'http://$serverAddress/ddf-pvt-ltd/webservice/';

@@ -20,6 +20,8 @@ class ViewSalesBloc extends Bloc<ViewSalesEvent, ViewSalesState> {
       if (event is SetSalesValues) {
         this.userId = event.userId;
         this.customerId = event.customerId;
+
+        yield ViewSaleStartupState(masterList: []);
       }
       if (event is SearchSalesRecord) {
         List<Map<String, dynamic>> master = await OrdersRepo.repo.getOrders(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/invoice.dart';
 import 'package:sales_force/shared/app_theme.dart';
 
@@ -20,7 +22,12 @@ class _CashPaymentState extends State<CashPayment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppTheme.appBar(title: 'Invoice Cash Payment'),
         body: SingleChildScrollView(
@@ -59,7 +66,9 @@ class _CashPaymentState extends State<CashPayment> {
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   showCashPayment() {

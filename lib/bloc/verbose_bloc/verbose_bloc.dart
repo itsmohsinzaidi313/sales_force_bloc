@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 
 part 'verbose_event.dart';
@@ -12,18 +13,24 @@ class VerboseBloc extends Bloc<VerboseEvent, VerboseState> {
   Stream<VerboseState> mapEventToState(
     VerboseEvent event,
   ) async* {
-    yield VerboseInitial(
-        title: event.title,
-        message: event.message,
-        value: getValues(event.message));
-    if (event.message == 'Installation successful.') {
-      yield VerboseProgressComplete(title: 'Completed',
-        message: event.message,
-        value: getValues(event.message));
-    } else if (event.message == 'Installation failed.') {
-      yield VerboseProgressFailed(title: 'Failure',
-        message: event.message,
-        value: getValues(event.message));
+    if (event is VerboseNewEvent) {
+      yield VerboseInitial(
+          title: event.title,
+          message: event.message,
+          value: getValues(event.message));
+      if (event.message == 'Installation successful.') {
+        yield VerboseProgressComplete(
+            title: 'Completed',
+            message: event.message,
+            value: getValues(event.message));
+      } else if (event.message == 'Installation failed.') {
+        yield VerboseProgressFailed(
+            title: 'Failure',
+            message: event.message,
+            value: getValues(event.message));
+      }
+    } else if (event is VerboseNotify) {
+      yield VerboseSnackBarState(message: event.message);
     }
   }
 

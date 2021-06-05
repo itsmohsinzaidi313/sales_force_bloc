@@ -12,7 +12,7 @@ import 'package:path/path.dart';
 import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/sql.dart';
 import 'package:sales_force/database/tables/users_table.dart';
-import 'package:sales_force/json_decode/import_data.dart';
+import 'package:sales_force/shared/import_data.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sqflite/sqflite.dart';
 

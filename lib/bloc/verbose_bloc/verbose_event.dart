@@ -19,3 +19,7 @@ class VerboseNewOperation extends VerboseEvent {
 class VerboseError extends VerboseEvent {
   VerboseError({String title, String message}) : super(title, message);
 }
+
+class VerboseNotify extends VerboseEvent {
+  VerboseNotify({String title, String message}) : super(title, message);
+}

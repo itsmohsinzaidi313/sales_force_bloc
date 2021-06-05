@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/tables/location_table.dart';
 import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/shared/config.dart';
@@ -11,8 +12,9 @@ import 'package:sqflite/sqflite.dart';
 
 class SPostLocation extends ServiceCommon {
   Database db;
-  SPostLocation(Database db) {
+  SPostLocation(Database db, {VerboseBloc bloc}) {
     this.db = db;
+    this.verboseBloc = bloc;
     initiate();
   }
   @override

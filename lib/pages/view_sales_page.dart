@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/bloc/view_sale_bloc/view_sale_bloc.dart';
 import 'package:sales_force/database/tables/order_master_table.dart';
-import 'package:sales_force/models/objects/customer.dart';
-import 'view_sale_detail_page.dart';
 import 'package:sales_force/shared/app_theme.dart';
 
 class ViewSalesPage extends StatelessWidget {
@@ -12,109 +11,115 @@ class ViewSalesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final fromDateController = TextEditingController(text: '');
     final toDateController = TextEditingController(text: '');
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('View Sales'),
-        bottom: AppBar(
-          backgroundColor: Colors.blue,
-          leadingWidth: 0,
-          leading: SizedBox(),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(
-                fit: FlexFit.tight,
-                child: ListTile(
-                  leading: Icon(Icons.calendar_today, color: Colors.white),
-                  title: TextField(
-                    readOnly: true,
-                    keyboardType: TextInputType.datetime,
-                    controller: fromDateController,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'From Date',
-                      labelStyle: TextStyle(color: Colors.white),
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('View Sales'),
+          bottom: AppBar(
+            backgroundColor: Colors.blue,
+            leadingWidth: 0,
+            leading: SizedBox(),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: ListTile(
+                    leading: Icon(Icons.calendar_today, color: Colors.white),
+                    title: TextField(
+                      readOnly: true,
+                      keyboardType: TextInputType.datetime,
+                      controller: fromDateController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'From Date',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () async =>
+                          fromDateController.text = await getDate(context),
+                      onChanged: (value) => DateTime.tryParse(value) == null
+                          ? AppTheme.snackbar(
+                              context, 'Please enter valid from date')
+                          : value,
                     ),
-                    onTap: () async =>
-                        fromDateController.text = await getDate(context),
-                    onChanged: (value) => DateTime.tryParse(value) == null
-                        ? AppTheme.snackbar(
-                            context, 'Please enter valid from date')
-                        : value,
                   ),
                 ),
-              ),
-              Flexible(
-                fit: FlexFit.tight,
-                child: ListTile(
-                  leading: Icon(Icons.calendar_today, color: Colors.white),
-                  title: TextField(
-                    readOnly: true,
-                    keyboardType: TextInputType.datetime,
-                    controller: toDateController,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'To Date',
-                      labelStyle: TextStyle(color: Colors.white),
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: ListTile(
+                    leading: Icon(Icons.calendar_today, color: Colors.white),
+                    title: TextField(
+                      readOnly: true,
+                      keyboardType: TextInputType.datetime,
+                      controller: toDateController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'To Date',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () async =>
+                          toDateController.text = await getDate(context),
+                      onChanged: (value) => DateTime.tryParse(value) == null
+                          ? AppTheme.snackbar(
+                              context, 'Please enter valid from date')
+                          : value,
                     ),
-                    onTap: () async =>
-                        toDateController.text = await getDate(context),
-                    onChanged: (value) => DateTime.tryParse(value) == null
-                        ? AppTheme.snackbar(
-                            context, 'Please enter valid from date')
-                        : value,
                   ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  DateTime fromDate =
-                          DateTime.tryParse(fromDateController.text),
-                      toDate = DateTime.tryParse(fromDateController.text);
-                  if (fromDate != null && toDate != null) {
-                    if (fromDate.isBefore(toDate) ||
-                        fromDate.isAtSameMomentAs(toDate)) {
-                      passEvent(
-                        context,
-                        SearchSalesRecord(
-                            fromDate: fromDateController.text,
-                            toDate: toDateController.text),
-                      );
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    DateTime fromDate =
+                            DateTime.tryParse(fromDateController.text),
+                        toDate = DateTime.tryParse(fromDateController.text);
+                    if (fromDate != null && toDate != null) {
+                      if (fromDate.isBefore(toDate) ||
+                          fromDate.isAtSameMomentAs(toDate)) {
+                        passEvent(
+                          context,
+                          SearchSalesRecord(
+                              fromDate: fromDateController.text,
+                              toDate: toDateController.text),
+                        );
+                      } else {
+                        AppTheme.snackbar(
+                            context, "'From date' cannot be after 'To Date'");
+                      }
                     } else {
-                      AppTheme.snackbar(
-                          context, "'From date' cannot be after 'To Date'");
+                      AppTheme.snackbar(context, 'Please select valid dates.');
                     }
-                  } else {
-                    AppTheme.snackbar(context, 'Please select valid dates.');
-                  }
-                },
-              ),
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      body: Container(
-        color: AppTheme.backgroundColor,
-        child: BlocConsumer<ViewSalesBloc, ViewSalesState>(
-          listener: (context, state) {
-            if (state is ViewSaleDetailState) {
-              Navigator.of(context)
-                  .pushNamed('/viewSaleDetail', arguments: state.detailsList);
-            }
-          },
-          buildWhen: (previous, current) => current is ViewSaleStartupState,
-          builder: (context, state) {
-            if (state is ViewSaleStartupState) {
-              return ListView(
-                children: getSalesRecordWidget(context, state.masterList),
-              );
-            } else {
-              return ListView(
-                children: getSalesRecordWidget(context, []),
-              );
-            }
-          },
+        body: Container(
+          color: AppTheme.backgroundColor,
+          child: BlocConsumer<ViewSalesBloc, ViewSalesState>(
+            listener: (context, state) {
+              if (state is ViewSaleDetailState) {
+                Navigator.of(context)
+                    .pushNamed('/viewSaleDetail', arguments: state.detailsList);
+              }
+            },
+            buildWhen: (previous, current) => current is ViewSaleStartupState,
+            builder: (context, state) {
+              if (state is ViewSaleStartupState) {
+                return ListView(
+                  children: getSalesRecordWidget(context, state.masterList),
+                );
+              } else {
+                return ListView(
+                  children: getSalesRecordWidget(context, []),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
@@ -132,16 +137,15 @@ class ViewSalesPage extends StatelessWidget {
 
     record.forEach((e) {
       Icon icon;
-      if (e[TableOrderMaster.status] == '1')
-        icon = Icon(
-          Icons.check,
-          color: Colors.green,
-        );
-      else
-        icon = Icon(
-          Icons.close,
-          color: Colors.red,
-        );
+      icon = e[TableOrderMaster.status] == 1
+          ? Icon(
+              Icons.check,
+              color: Colors.green,
+            )
+          : Icon(
+              Icons.close,
+              color: Colors.red,
+            );
 
       widgets.add(GestureDetector(
         onTap: () => passEvent(context,

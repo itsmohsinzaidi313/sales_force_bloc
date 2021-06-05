@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/services/customer_service.dart';
 import 'package:sales_force/services/service_common.dart';
 import 'package:sales_force/services/invoice_service.dart';
@@ -19,14 +20,14 @@ class ServiceControl {
   static ServiceControl control = ServiceControl._internal();
   ServiceControl._internal();
 
-  void initializeDatabaseDependentServices({Database database}) async {
+  void initializeDatabaseDependentServices({Database database, VerboseBloc bloc}) async {
     try {
-      this.invoiceService = SPostInvoice(database);
-      this.orderService = SPostOrder(database);
-      this.visitService = SPostVisit(database);
-      this.syncService = SSyncService(database);
-      this.locationService = SPostLocation(database);
-      this.customerService = SUploadCustomer(database);
+      this.invoiceService = SPostInvoice(database, bloc: bloc);
+      this.orderService = SPostOrder(database, bloc: bloc);
+      this.visitService = SPostVisit(database, bloc: bloc);
+      this.syncService = SSyncService(database, bloc: bloc);
+      this.locationService = SPostLocation(database, bloc: bloc);
+      this.customerService = SUploadCustomer(database, bloc: bloc);
     } catch (e) {
       log('ERROR ON DATABASE DEPENDENT SERVICES', error: e);
     }
@@ -48,7 +49,7 @@ class ServiceControl {
     return status;
   }
 
-  updateServiceStatus(String name, bool status) {
+  void updateServiceStatus(String name, bool status) {
     if (name == locationService.name)
       locationService.setStatus(status);
     else if (name == orderService.name)

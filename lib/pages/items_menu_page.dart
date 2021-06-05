@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/item_menu_bloc/item_menu_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/category.dart';
 import 'package:sales_force/models/objects/product.dart';
 import 'package:sales_force/shared/app_theme.dart';
@@ -17,35 +18,41 @@ class ItemsMenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ItemMenuBloc, ItemMenuState>(
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
       listener: (context, state) {
-        if (state is ValidSubmission) {
-          state.customerOrder.customer = arguments[1];
-          Navigator.of(context)
-              .pushNamed('/orderPayment', arguments: state.customerOrder);
-        } else if (state is InvalidSubmission) {
-          AppTheme.snackbar(context, state.message);
-        } else if (state is ItemMenuErrorState) {
-          AppTheme.snackbar(context, state.message, error: true);
-        }
+        AppTheme.snackbar(context, state.message);
       },
-      child: BlocBuilder<ItemMenuBloc, ItemMenuState>(
-        buildWhen: (previous, current) {
-          if (current is LoadItemMenuState || current is SearchItemState) {
-            return true;
-          } else {
-            return false;
+      child: BlocListener<ItemMenuBloc, ItemMenuState>(
+        listener: (context, state) {
+          if (state is ValidSubmission) {
+            state.customerOrder.customer = arguments[1];
+            Navigator.of(context)
+                .pushNamed('/orderPayment', arguments: state.customerOrder);
+          } else if (state is InvalidSubmission) {
+            AppTheme.snackbar(context, state.message);
+          } else if (state is ItemMenuErrorState) {
+            AppTheme.snackbar(context, state.message, error: true);
           }
         },
-        builder: (context, state) {
-          if (state is LoadItemMenuState) {
-            return ItemsTabsView(
-              paymentType: arguments[0],
-            );
-          } else {
-            return ItemsSearchView();
-          }
-        },
+        child: BlocBuilder<ItemMenuBloc, ItemMenuState>(
+          buildWhen: (previous, current) {
+            if (current is LoadItemMenuState || current is SearchItemState) {
+              return true;
+            } else {
+              return false;
+            }
+          },
+          builder: (context, state) {
+            if (state is LoadItemMenuState) {
+              return ItemsTabsView(
+                paymentType: arguments[0],
+              );
+            } else {
+              return ItemsSearchView();
+            }
+          },
+        ),
       ),
     );
   }
@@ -67,6 +74,7 @@ class ItemsSearchView extends StatelessWidget {
               return false;
             },
             child: Scaffold(
+                backgroundColor: Colors.white,
                 appBar: AppBar(
                   backgroundColor: Colors.blue,
                   title: TextField(
@@ -123,7 +131,8 @@ class ItemsSearchView extends StatelessWidget {
                       url: list[index].getNetworkImage(),
                       height: MediaQuery.of(context).size.height * 0.2,
                       boxFit: BoxFit.fill),
-                  onTap: () {}),
+                  onTap: () => passEvent(
+                      context, ItemAddEvent(productId: list[index].productId))),
               title: list[index].title.toUpperCase(),
               secondLine: 'RS: ${list[index].price}',
             ),
@@ -167,6 +176,7 @@ class ItemsTabsView extends StatelessWidget {
           return DefaultTabController(
             length: tabs.length,
             child: Scaffold(
+              backgroundColor: Colors.white,
               appBar: AppBar(
                 backgroundColor: Colors.blue,
                 title: Text(
@@ -210,7 +220,7 @@ class ItemsTabsView extends StatelessWidget {
                 panel: slideUpPanelPanel(state),
                 collapsed: slideUpPanelCollapsed(state),
                 body: Container(
-                  color: AppTheme.backgroundColor,
+                  color: Colors.grey[50],
                   margin: EdgeInsets.only(bottom: 170),
                   child: BlocBuilder<ItemMenuBloc, ItemMenuState>(
                     buildWhen: (previous, current) {
@@ -262,18 +272,22 @@ class ItemsTabsView extends StatelessWidget {
         itemBuilder: (context, index) {
           return Column(
             children: [
-              CustomListItem(
-                thumbnail: GestureDetector(
-                    child: AppTheme.loadNetworkImage(
-                        url: list[index].getNetworkImage(),
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        boxFit: BoxFit.fill),
-                    onTap: () => passEvent(context,
-                        ItemAddEvent(productId: list[index].productId))),
-                title: list[index].title.toUpperCase(),
-                secondLine: 'RS: ${list[index].price}',
+              GestureDetector(
+                onTap: () => passEvent(
+                  context,
+                  ItemAddEvent(
+                    productId: list[index].productId,
+                  ),
+                ),
+                child: CustomListItem(
+                  thumbnail: AppTheme.loadNetworkImage(
+                      url: list[index].getNetworkImage(),
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      boxFit: BoxFit.fill),
+                  title: list[index].title.toUpperCase(),
+                  secondLine: 'RS: ${list[index].price}',
+                ),
               ),
-              Divider(),
             ],
           );
         },

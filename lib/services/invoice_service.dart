@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/tables/paid_invoices_table.dart';
 import 'package:sales_force/shared/library.dart';
 import 'package:sales_force/services/service_common.dart';
@@ -20,12 +21,13 @@ class SPostInvoice extends ServiceCommon {
 
   Database db;
 
-  SPostInvoice(Database db) {
+  SPostInvoice(Database db, {VerboseBloc bloc}) {
     this.db = db;
+    this.verboseBloc = bloc;
     initiate();
   }
 
-  void _uploadInvoices() async {
+  Future<void> _uploadInvoices() async {
     try {
       List<Map<String, dynamic>> invoices = await db.query(
           TablePaidInvoices.tableName,
@@ -55,10 +57,13 @@ class SPostInvoice extends ServiceCommon {
           if (packet != null) {
             status = await Library.uploadToServer(Config.putInvoiceAPILink,
                 jsonString: packet.toString());
-            await db.update(TablePaidInvoices.tableName,
-                {TablePaidInvoices.isUpload: status ? 1 : 0},
-                where: '${TablePaidInvoices.id} = ?',
-                whereArgs: [inv['android_payment_id']]);
+            if (status) {
+              await db.update(TablePaidInvoices.tableName,
+                  {TablePaidInvoices.isUpload: status ? 1 : 0},
+                  where: '${TablePaidInvoices.id} = ?',
+                  whereArgs: [inv['android_payment_id']]);
+              this.verboseBloc.add(VerboseNotify(message: 'Invoice Uploaded'));
+            }
           }
         });
       }

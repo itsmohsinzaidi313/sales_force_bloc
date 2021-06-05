@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/login_bloc/login_bloc.dart';
 import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
+import 'package:sales_force/models/objects/user.dart';
 import 'package:sales_force/services/service_control.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
@@ -21,7 +22,8 @@ class LoginPage extends StatelessWidget {
         if (state is LoginSuccessful) {
           AppTheme.snackbar(context, state.message);
           Config.database.then((value) => ServiceControl.control
-              .initializeDatabaseDependentServices(database: value));
+              .initializeDatabaseDependentServices(
+                  database: value, bloc: context.read<VerboseBloc>()));
           Navigator.pushNamedAndRemoveUntil(context, '/menu', (route) => false);
         } else if (state is InvalidSubmission) {
           AppTheme.snackbar(context, state.message);
@@ -58,8 +60,10 @@ class LoginPage extends StatelessWidget {
           color: AppTheme.backgroundColor,
           child: ListView(
             children: <Widget>[
-              Container(child: BlocBuilder<LoginBloc, LoginState>(
-                buildWhen: (previous, current) => current is NewUser || current is SavedUser,
+              Container(
+                  child: BlocBuilder<LoginBloc, LoginState>(
+                buildWhen: (previous, current) =>
+                    current is NewUser || current is SavedUser,
                 builder: (context, state) {
                   if (state is SavedUser) {
                     return LoginButton(email: state.email);
@@ -84,9 +88,6 @@ class LoginPage extends StatelessWidget {
   void choiceAction(String choice, BuildContext context) {
     Library.hasServerAccess().then((value) {
       if (value) {
-        // if (choice == Reinstall) {
-        //   Library.install(context, reinstall: true);
-        // } else
         if (choice == Update) {
           Library.install(context, forceUpdate: true);
         }
@@ -160,6 +161,7 @@ class LoginButton extends StatelessWidget {
 
 class LoginFields extends StatelessWidget {
   final Image logo = Image.asset('images/icon2.jpg');
+  final user = User();
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -185,9 +187,7 @@ class LoginFields extends StatelessWidget {
                       color: Colors.grey[600],
                     ),
                   ),
-                  onChanged: (value) => context
-                      .read<LoginBloc>()
-                      .add(LoginEmailChanged(email: value)),
+                  onChanged: (value) => user.email = value,
                 ),
                 TextField(
                   decoration: InputDecoration(
@@ -197,9 +197,7 @@ class LoginFields extends StatelessWidget {
                       color: Colors.grey[600],
                     ),
                   ),
-                  onChanged: (value) => context
-                      .read<LoginBloc>()
-                      .add(LoginPasswordChanged(password: value)),
+                  onChanged: (value) => this.user.password = value,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -213,7 +211,7 @@ class LoginFields extends StatelessWidget {
                       style: TextStyle(color: Colors.white, fontSize: 25.0),
                     ),
                     onPressed: () =>
-                        context.read<LoginBloc>().add(LoginSubmit()),
+                        context.read<LoginBloc>().add(LoginSubmit(user: this.user)),
                   ),
                 ),
               ],

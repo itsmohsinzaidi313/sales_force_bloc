@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/invoice_bloc/invoice_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/invoice.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
@@ -28,206 +29,221 @@ class InvoicePaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text('Invoice Payment'.toUpperCase()),
-      ),
-      body: false
-          ? Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  leftPadding, topPadding, rightPadding, bottomPadding),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: firstText.toUpperCase(),
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Invoice Payment'.toUpperCase()),
+        ),
+        body: false
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    leftPadding, topPadding, rightPadding, bottomPadding),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: firstText.toUpperCase(),
+                            ),
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.customerName,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: secondText.toUpperCase(),
+                          AppTheme.text(
+                            text: invoice.customerName,
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.invoiceNumber,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: thirdText.toUpperCase(),
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: secondText.toUpperCase(),
+                            ),
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.balance,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: forthText.toUpperCase(),
+                          AppTheme.text(
+                            text: invoice.invoiceNumber,
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.discount,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: fifthText.toUpperCase(),
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: thirdText.toUpperCase(),
+                            ),
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.totalAmount,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: sixthText.toUpperCase(),
+                          AppTheme.text(
+                            text: invoice.balance,
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.paidAmount,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: AppTheme.text(
-                            text: seventhText.toUpperCase(),
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: forthText.toUpperCase(),
+                            ),
                           ),
-                        ),
-                        AppTheme.text(
-                          text: invoice.date,
-                        ),
-                      ],
+                          AppTheme.text(
+                            text: invoice.discount,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
-                    child: ButtonBar(
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: fifthText.toUpperCase(),
+                            ),
+                          ),
+                          AppTheme.text(
+                            text: invoice.totalAmount,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: sixthText.toUpperCase(),
+                            ),
+                          ),
+                          AppTheme.text(
+                            text: invoice.paidAmount,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: AppTheme.text(
+                              text: seventhText.toUpperCase(),
+                            ),
+                          ),
+                          AppTheme.text(
+                            text: invoice.date,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(0, 0, 0, bottomPadding),
+                      child: ButtonBar(
+                        alignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          AppTheme.roundElevatedButton(
+                              text: 'Cash Payment', onPressed: () {}),
+                          AppTheme.roundElevatedButton(
+                              text: 'Cheque Payment', onPressed: () {}),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : BlocListener<InvoiceBloc, InvoiceState>(
+                listener: (context, state) {
+                  if (state is PaymentSuccessfulState) {
+                    AppTheme.snackbar(context, state.message);
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/menu', (route) => false);
+                  } else if (state is PaymentUnsuccessfulState) {
+                    AppTheme.snackbar(context, state.message);
+                  } else if (state is InvalidPaymentState) {
+                    AppTheme.snackbar(context, state.message);
+                  } else if (state is InvalidBankState) {
+                    AppTheme.snackbar(context, state.message);
+                  } else if (state is InvalidChequeNoState) {
+                    AppTheme.snackbar(context, state.message);
+                  } else if (state is InvalidClearingDateEvent) {
+                    AppTheme.snackbar(context, state.message);
+                  }
+                },
+                child: ListView(
+                  children: [
+                    ListTile(
+                      title: Text('Customer Name'),
+                      subtitle: Text(invoice.customerName),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('Invoice Number'),
+                      subtitle: Text(invoice.invoiceNumber),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('Received Amount'),
+                      subtitle: Text(invoice.balance),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('Discount'),
+                      subtitle: Text(invoice.discount),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('Total Amount'),
+                      subtitle: Text(invoice.totalAmount),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('Paid Amount'),
+                      subtitle: Text(invoice.paidAmount),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('Invoice Date'),
+                      subtitle: Text(invoice.date),
+                    ),
+                    Divider(),
+                    ButtonBar(
                       alignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        AppTheme.roundElevatedButton(
-                            text: 'Cash Payment', onPressed: () {}),
-                        AppTheme.roundElevatedButton(
-                            text: 'Cheque Payment', onPressed: () {}),
+                        AppTheme.rectangleElevatedButton(
+                            text: 'By Cash'.toUpperCase(),
+                            onPressed: () =>
+                                cashPaymentDialog(context, invoice)),
+                        AppTheme.rectangleElevatedButton(
+                            text: 'By Cheque'.toUpperCase(),
+                            onPressed: () =>
+                                chequePaymentDialog(context, invoice)),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )
-          : BlocListener<InvoiceBloc, InvoiceState>(
-              listener: (context, state) {
-                if (state is PaymentSuccessfulState) {
-                  AppTheme.snackbar(context, state.message);
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/menu', (route) => false);
-                } else if (state is PaymentUnsuccessfulState) {
-                  AppTheme.snackbar(context, state.message);
-                } else if (state is InvalidPaymentState) {
-                  AppTheme.snackbar(context, state.message);
-                } else if (state is InvalidBankState) {
-                  AppTheme.snackbar(context, state.message);
-                } else if (state is InvalidChequeNoState) {
-                  AppTheme.snackbar(context, state.message);
-                } else if (state is InvalidClearingDateEvent) {
-                  AppTheme.snackbar(context, state.message);
-                }
-              },
-              child: ListView(
-                children: [
-                  ListTile(
-                    title: Text('Customer Name'),
-                    subtitle: Text(invoice.customerName),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('Invoice Number'),
-                    subtitle: Text(invoice.invoiceNumber),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('Received Amount'),
-                    subtitle: Text(invoice.balance),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('Discount'),
-                    subtitle: Text(invoice.discount),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('Total Amount'),
-                    subtitle: Text(invoice.totalAmount),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('Paid Amount'),
-                    subtitle: Text(invoice.paidAmount),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('Invoice Date'),
-                    subtitle: Text(invoice.date),
-                  ),
-                  Divider(),
-                  ButtonBar(
-                    alignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      AppTheme.rectangleElevatedButton(
-                          text: 'By Cash'.toUpperCase(),
-                          onPressed: () => cashPaymentDialog(context, invoice)),
-                      AppTheme.rectangleElevatedButton(
-                          text: 'By Cheque'.toUpperCase(),
-                          onPressed: () =>
-                              chequePaymentDialog(context, invoice)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+      ),
     );
   }
 

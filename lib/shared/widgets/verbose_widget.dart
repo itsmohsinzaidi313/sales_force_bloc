@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
@@ -7,20 +9,28 @@ class VerboseWidgets {
   VerboseWidgets({this.context});
   void showVerboseDialog() => showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (context) => Dialog(
           child: Container(
             child: BlocBuilder<VerboseBloc, VerboseState>(
               builder: (context, state) {
                 try {
+                  if (state.title == 'Completed') {
+                    Timer(Duration(seconds: 2), () {
+                      Navigator.pop(context);
+                    });
+                  }
                   return Wrap(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.info),
+                        leading: state.title == 'Completed'
+                            ? Icon(Icons.check, color: Colors.green)
+                            : Icon(Icons.info),
                         title: Text(
                           state.title.toUpperCase(),
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                         subtitle: Column(
@@ -51,10 +61,16 @@ class VerboseWidgets {
                     ],
                   );
                 } catch (e) {
+                  Timer(Duration(seconds: 2), () {
+                    Navigator.pop(context);
+                  });
                   return Wrap(
                     children: [
                       ListTile(
-                          leading: Icon(Icons.info),
+                          leading: Icon(
+                            Icons.close,
+                            color: Colors.red,
+                          ),
                           title: Text('Error Occured'),
                           subtitle: Text(e.toString())),
                     ],

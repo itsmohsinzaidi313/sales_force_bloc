@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/tables/categories_table.dart';
 import 'package:sales_force/database/tables/category_permissions.dart';
 import 'package:sales_force/database/tables/customer_table.dart';
@@ -27,9 +28,10 @@ import '../shared/config.dart';
 class SSyncService extends ServiceCommon {
   Database db;
   List<SyncPacket> listSyncPackets = [];
-  SSyncService(Database database) {
+  SSyncService(Database database, {VerboseBloc bloc}) {
     initiate();
     this.db = database;
+    this.verboseBloc = bloc;
   }
 
   @override
@@ -165,8 +167,10 @@ class SSyncService extends ServiceCommon {
           whereArgs: [invoice.invoiceNumber]);
       if (list == null || list.isEmpty) {
         await db.insert(TableInvoices.tableName, invoice.getMapForInsert());
+        this.verboseBloc.add(VerboseNotify(message: 'Invoice Added'));
       }
       updateSyncApiStatus(serverId);
+      log('INVOICE ADDED');
     } catch (e) {
       log('NEW INVOICE INSERT FAILED', error: e);
     }
@@ -181,8 +185,10 @@ class SSyncService extends ServiceCommon {
           whereArgs: [customer.customerId]);
       if (list == null || list.isEmpty) {
         await db.insert(TableCustomer.tableName, customer.getMap());
+        this.verboseBloc.add(VerboseNotify(message: 'Customer Added'));
       }
       updateSyncApiStatus(serverId);
+      log('CUSTOMER ADDED');
     } catch (e) {
       log('NEW CUSTOMER INSERT FAILED', error: e);
     }
@@ -196,8 +202,10 @@ class SSyncService extends ServiceCommon {
           whereArgs: [user.userId]);
       if (list == null || list.isEmpty) {
         await db.insert(TableUsers.tableName, user.getMap());
+        this.verboseBloc.add(VerboseNotify(message: 'User Added'));
       }
       updateSyncApiStatus(serverId);
+      log('USER ADDED');
     } catch (e) {
       log('NEW USER INSERT FAILED', error: e);
     }
@@ -206,16 +214,20 @@ class SSyncService extends ServiceCommon {
   Future<void> updateCategory(Database db, Category category,
       List<CategoryPermissions> categoryPermissions, String serverId) async {
     try {
-      int rowsUpdated =
-          await db.update(TableCategories.tableName, category.getMap());
+      int rowsUpdated = await db.update(
+          TableCategories.tableName, category.getMap(),
+          where: '${TableCategories.categoryId} = ?',
+          whereArgs: [category.categoryId]);
       if (rowsUpdated > 0) {
         await db.delete(TableCategoryPermissions.tableName,
             where: '${TableCategoryPermissions.categoryId} = ?',
             whereArgs: [category.categoryId]);
         categoryPermissions.forEach((element) async => await db.insert(
             TableCategoryPermissions.tableName, element.getMap()));
+            this.verboseBloc.add(VerboseNotify(message: 'Category Updated'));
       }
       updateSyncApiStatus(serverId);
+      log('CATEGORY UPDATED');
     } catch (e) {
       log('CATEGORY UPDATE FAILED', error: e);
     }
@@ -237,8 +249,10 @@ class SSyncService extends ServiceCommon {
               whereArgs: [product.productId]);
           listProductPrices.forEach((element) async => await db.insert(
               TableProductPrices.tableName, element.getMapForInsert()));
+              this.verboseBloc.add(VerboseNotify(message: 'Product Added'));
         }
       }
+      log('PRODUCT ADDED');
       updateSyncApiStatus(serverId);
     } catch (e) {
       log('PRODUCT INSERT FAILED', error: e);
@@ -248,14 +262,17 @@ class SSyncService extends ServiceCommon {
   Future<void> updateProduct(Database db, Product product,
       List<ProductPrices> productPrices, String serverId) async {
     try {
-      int rowsAffected =
-          await db.update(TableProducts.tableName, product.getMapForUpdate());
+      int rowsAffected = await db.update(
+          TableProducts.tableName, product.getMapForUpdate(),
+          where: '${TableProducts.productId} = ?',
+          whereArgs: [product.productId]);
       if (rowsAffected > 0) {
         await db.delete(TableProductPrices.tableName,
             where: '${TableProductPrices.productId} = ?',
             whereArgs: [product.productId]);
         productPrices.forEach((element) async => await db.insert(
             TableProductPrices.tableName, element.getMapForInsert()));
+            this.verboseBloc.add(VerboseNotify(message: 'Product Updated'));
       }
       updateSyncApiStatus(serverId);
       log('PRODUCT UPDATED');
@@ -279,6 +296,7 @@ class SSyncService extends ServiceCommon {
             whereArgs: [category.categoryId]);
         categoryPermissions.forEach((element) async => await db.insert(
             TableCategoryPermissions.tableName, element.getMap()));
+            this.verboseBloc.add(VerboseNotify(message: 'Category Added'));
       }
       updateSyncApiStatus(serverId);
       log('CATEGORY UPDATED');
@@ -289,8 +307,10 @@ class SSyncService extends ServiceCommon {
 
   Future<void> updateUser(Database db, User user, String serverId) async {
     try {
-      await db.update(TableUsers.tableName, user.getMap());
+      await db.update(TableUsers.tableName, user.getMap(),
+          where: '${TableUsers.userId} = ?', whereArgs: [user.userId]);
       updateSyncApiStatus(serverId);
+      this.verboseBloc.add(VerboseNotify(message: 'User Updated'));
       log('USER UPDATED');
     } catch (e) {
       log('USER UPDAT FAILED', error: e);
@@ -300,8 +320,11 @@ class SSyncService extends ServiceCommon {
   Future<void> updateCustomer(
       Database db, Customer customer, String serverId) async {
     try {
-      await db.update(TableCustomer.tableName, customer.getMap());
+      await db.update(TableCustomer.tableName, customer.getMap(),
+          where: '${TableCustomer.customerId} = ?',
+          whereArgs: [customer.customerId]);
       updateSyncApiStatus(serverId);
+      this.verboseBloc.add(VerboseNotify(message: 'Customer Updated'));
       log('CUSTOMER UPDATED');
     } catch (e) {
       log('CUSTOMER UPDATE FAILED');

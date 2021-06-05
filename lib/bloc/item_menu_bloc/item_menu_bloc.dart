@@ -105,29 +105,40 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
 
     productPrices = await ItemsMenuRepo.repo.getProductPrices();
     productFOC = await ItemsMenuRepo.repo.getProductFoc();
-    products.forEach((p) {
-      ProductPrices pp = productPrices.singleWhere(
-        (pp) =>
-            pp.productId == p.productId &&
-            pp.customerGroupId == customerOrder.customer.customerGroupId,
-        orElse: () => ProductPrices(
-            customerGroupId: p.customerGroupId,
-            productId: p.productId,
-            cashPrice: p.packPrice,
-            creditPrice: p.creditPrice),
-      );
+
+    for (var p in products) {
+      ProductPrices pp;
+      for (var item in productPrices) {
+        if (item.productId == p.productId &&
+            item.customerGroupId == customerOrder.customer.customerGroupId) {
+          pp = item;
+        }
+      }
+
+      if (pp == null) {
+        pp = ProductPrices(
+          customerGroupId: p.customerGroupId,
+          productId: p.productId,
+          cashPrice: p.packPrice,
+          creditPrice: p.creditPrice,
+        );
+      }
       if (customerOrder.paymentmode == PAYMENTMODE.CASH) {
         p.price = pp.cashPrice;
       } else if (customerOrder.paymentmode == PAYMENTMODE.CREDIT) {
         p.price = pp.creditPrice;
       }
+      for (var item in productFOC) {
+        if (item.productId == int.parse(p.productId)) {
+          p.foc = item;
+        }
+      }
 
-      p.foc = productFOC.singleWhere(
-        (pFOC) => pFOC.productId == int.parse(p.productId),
-        orElse: () => ProductFoc(
-            start: 0, end: 0, quantity: 0, productId: int.parse(p.productId)),
-      );
-    });
+      if (p.foc == null) {
+        p.foc = ProductFoc(
+            start: 0, end: 0, quantity: 0, productId: int.parse(p.productId));
+      }
+    }
   }
 
   bool validateItemsQuantity(List<Product> items) {

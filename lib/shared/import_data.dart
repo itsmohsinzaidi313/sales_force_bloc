@@ -83,7 +83,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading Customers $_count/${i.length}');
+          'Customers', 'Downloading $_count/${i.length}');
       await db.insert(TableCustomer.tableName, {
         TableCustomer.customerId: item['customer_id'],
         TableCustomer.customerGroupId: item['customer_group_id'],
@@ -99,10 +99,12 @@ class ImportData {
         TableCustomer.mobile: item['customer_mobile'],
         TableCustomer.shopName: item['customer_shop_name'],
         TableCustomer.address: item['customer_address1'],
-        TableCustomer.status: item['status'] ?? '1',
+        TableCustomer.status: 1,
         TableCustomer.discountType: item['discount_type'],
         TableCustomer.discount: item['discount'],
         TableCustomer.creditLimit: item['credit_limit'],
+        TableCustomer.shopLat: item['shop_board_lat'],
+        TableCustomer.shopLong: item['shop_board_long'],
       });
     }
   }
@@ -111,7 +113,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading ProductPrices $_count/${i.length}');
+          'ProductPrices', 'Downloading $_count/${i.length}');
       await db.insert(TableProductPrices.tableName, {
         TableProductPrices.productId: item['product_id'],
         TableProductPrices.customerGroupId: item['customer_group_id'],
@@ -125,7 +127,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading CustomerGroup $_count/${i.length}');
+          'CustomerGroup', 'Downloading $_count/${i.length}');
       await db.insert(TableCustomerGroups.tableName, {
         TableCustomerGroups.customerGroupId: item['customer_group_id'],
         TableCustomerGroups.name: item['name'],
@@ -137,7 +139,7 @@ class ImportData {
     _count = 1;
 
     for (var item in i) {
-      _triggerBlocEvent('ImportData', 'Downloading Users $_count/${i.length}');
+      _triggerBlocEvent('Users', 'Downloading $_count/${i.length}');
       await db.insert(TableUsers.tableName, {
         TableUsers.userId: item['user_id'],
         TableUsers.userTypeid: item['user_type_id'],
@@ -161,7 +163,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading UserTypes $_count/${i.length}');
+          'UserTypes', 'Downloading $_count/${i.length}');
       await db.insert(TableUsersType.tableName, {
         TableUsersType.userTypeId: item['user_type_id'],
         TableUsersType.title: item['user_type_title'],
@@ -174,7 +176,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading Categories $_count/${i.length}');
+          'Categories', 'Downloading $_count/${i.length}');
       await db.insert(TableCategories.tableName, {
         TableCategories.categoryId: item['product_category_id'],
         TableCategories.userId: item['user_id'],
@@ -191,7 +193,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading CategoryPermissions $_count/${i.length}');
+          'CategoryPermissions', 'Downloading $_count/${i.length}');
       await db.insert(TableCategoryPermissions.tableName, {
         TableCategoryPermissions.categoryId: item['product_category_id'],
         TableCategoryPermissions.userId: item['user_id']
@@ -204,7 +206,7 @@ class ImportData {
 
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading Invoices $_count/${i.length}');
+          'Invoices', 'Downloading $_count/${i.length}');
       await db.insert(TableInvoices.tableName, {
         TableInvoices.invoiceId: item['invoice_id'],
         TableInvoices.orderId: item['order_id'],
@@ -228,7 +230,7 @@ class ImportData {
     _count = 1;
     for (var item in i) {
       _triggerBlocEvent(
-          'ImportData', 'Downloading Products $_count/${i.length}');
+          'Products', 'Downloading $_count/${i.length}');
       await db.insert(TableProducts.tableName, {
         TableProducts.productId: item['product_id'],
         TableProducts.categoryId: item['product_category_id'],
@@ -257,7 +259,7 @@ class ImportData {
       _count = 1;
       for (var item in i) {
         _triggerBlocEvent(
-            'ImportData', 'Downloading ProductFoc $_count/${i.length}');
+            'ProductFoc', 'Downloading $_count/${i.length}');
         await db.insert(TableProductFOC.tableName, {
           TableProductFOC.productId: item['product_id'],
           TableProductFOC.start: item['start'],

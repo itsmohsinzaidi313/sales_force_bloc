@@ -16,23 +16,25 @@ class CustomListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            flex: 2,
-            child: thumbnail,
-          ),
-          Expanded(
-            flex: 3,
-            child: _ItemDescription(title: title, secondLine: secondLine),
-          ),
-          // const Icon(
-          //   Icons.more_vert,
-          //   size: 16.0,
-          // ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Card(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 2,
+              child: thumbnail,
+            ),
+            Expanded(
+              flex: 3,
+              child: _ItemDescription(title: title, secondLine: secondLine),
+            ),
+            // const Icon(
+            //   Icons.more_vert,
+            //   size: 16.0,
+            // ),
+          ],
+        ),
       ),
     );
   }

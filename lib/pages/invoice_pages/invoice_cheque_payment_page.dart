@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/invoice.dart';
 import 'package:sales_force/shared/app_theme.dart';
 
@@ -26,7 +28,12 @@ class _ChequePaymentState extends State<ChequePayment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
         appBar: AppTheme.appBar(title: 'Invoice Cheque Payment'),
         body: SingleChildScrollView(
           child: Center(
@@ -64,7 +71,9 @@ class _ChequePaymentState extends State<ChequePayment> {
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   showChequePayment() {
@@ -102,7 +111,6 @@ class _ChequePaymentState extends State<ChequePayment> {
                 Container(
                   child: TextField(
                     decoration: InputDecoration(hintText: 'Amount'),
-                    
                   ),
                 ),
                 Container(

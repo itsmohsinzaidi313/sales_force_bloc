@@ -162,7 +162,8 @@ class Product {
 
   getNetworkImage() {
     if (this.image == null || this.image == '')
-      return 'https://www.freeiconspng.com/uploads/no-image-icon-23.jpg';
+      return '';
+    // return 'https://www.freeiconspng.com/uploads/no-image-icon-23.jpg';
     else
       return this.image;
   }

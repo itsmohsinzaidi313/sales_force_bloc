@@ -112,7 +112,7 @@ class SplashPage extends StatelessWidget {
     final status = await Library.install(
       context,
       // forceUpdate: true,
-      reinstall: true,
+      // reinstall: true,
     );
     if (status) {
       await Future.delayed(Duration(seconds: 2));

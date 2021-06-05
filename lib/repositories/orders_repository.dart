@@ -17,18 +17,12 @@ class OrdersRepo {
   OrdersRepo._internal({this.database});
 
   Future<List<Map<String, dynamic>>> getOrders(
-      {String userId, String customerId, String from, String to}) async {
-    database.then((value) => value
-        .query(TableOrderMaster.tableName)
-        .then((value) => value.forEach((element) {
-              log(element.toString());
-            })));
-    return (await (await database).query(TableOrderMaster.tableName,
-        where:
-            '${TableOrderMaster.userId} = ? and ${TableOrderMaster.customerId} = ? and ${TableOrderMaster.createdOn} between ? and ?',
-        whereArgs: [userId, customerId, '$from 00:00:00', '$to 23:59:59'],
-        orderBy: '${TableOrderMaster.id} desc'));
-  }
+          {String userId, String customerId, String from, String to}) async =>
+      (await (await database).query(TableOrderMaster.tableName,
+          where:
+              '${TableOrderMaster.userId} = ? and ${TableOrderMaster.customerId} = ? and ${TableOrderMaster.createdOn} between ? and ?',
+          whereArgs: [userId, customerId, '$from 00:00:00', '$to 23:59:59'],
+          orderBy: '${TableOrderMaster.id} desc'));
 
   Future<List<Product>> getOrdersDetail({String masterId}) async {
     final list = (await (await database).query(TableOrderDetail.tableName,

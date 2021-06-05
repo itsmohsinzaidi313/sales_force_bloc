@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/invoice_bloc/invoice_bloc.dart';
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/invoice.dart';
 import 'package:sales_force/shared/app_theme.dart';
 
@@ -9,7 +10,12 @@ class InvoicePage extends StatelessWidget {
   List<Invoice> invoices = [];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
+      listener: (context, state) {
+        AppTheme.snackbar(context, state.message);
+      },
+      child: Scaffold(
         appBar: AppBar(
           title: Text("Invoices"),
         ),
@@ -66,7 +72,9 @@ class InvoicePage extends StatelessWidget {
               }
             },
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   List<Widget> invoiceView(BuildContext context, List<Invoice> invoices) =>

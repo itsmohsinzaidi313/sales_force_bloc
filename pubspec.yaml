@@ -83,6 +83,7 @@ flutter:
   - devaj_logo_small.png
   - devaj_theme_bg.jpg
   - ddf_logo.png
+  - images/placeholder.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

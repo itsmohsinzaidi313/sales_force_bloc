@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/tables/visits_table.dart';
 import 'package:sales_force/services/service_common.dart';
 import 'package:sqflite/sqflite.dart';
@@ -11,9 +12,10 @@ import '../shared/library.dart';
 class SPostVisit extends ServiceCommon {
   Database db;
 
-  SPostVisit(Database database) {
+  SPostVisit(Database database, {VerboseBloc bloc}) {
     initiate();
     db = database;
+    this.verboseBloc = bloc;
   }
 
   @override
