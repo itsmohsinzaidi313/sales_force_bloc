@@ -40,7 +40,7 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
         yield SearchItemState(products: []);
       } else if (event is PanelCollasped) {
         yield CartItemsState(
-            products: customerOrder.cartItems,
+            products: customerOrder.items,
             totalAmount: customerOrder.totalAmount);
       } else if (event is CancelSearchPressed) {
         yield LoadItemMenuState(
@@ -56,33 +56,33 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
             .where((element) => element.productId == event.productId)
             .first);
         yield CartItemsState(
-            products: customerOrder.cartItems,
+            products: customerOrder.items,
             totalAmount: customerOrder.totalAmount);
       } else if (event is ItemReduceEvent) {
         customerOrder.reduceCartItem(int.parse(event.productId));
         yield CartItemsState(
-            products: customerOrder.cartItems,
+            products: customerOrder.items,
             totalAmount: customerOrder.totalAmount);
       } else if (event is ItemRemoveEvent) {
         customerOrder.removeCartItem(int.parse(event.productId));
         yield CartItemsState(
-            products: customerOrder.cartItems,
+            products: customerOrder.items,
             totalAmount: customerOrder.totalAmount);
       } else if (event is QuantityChanged) {
         customerOrder.setQuantity(event.productId, event.quantity);
 
         yield CartItemsState(
-            products: customerOrder.cartItems,
+            products: customerOrder.items,
             totalAmount: customerOrder.totalAmount);
       } else if (event is FOCQuantityChanged) {
         customerOrder.setFOCQuantity(event.productId, event.quantity);
 
         yield CartItemsState(
-            products: customerOrder.cartItems,
+            products: customerOrder.items,
             totalAmount: customerOrder.totalAmount);
       } else if (event is SubmitOrder) {
-        if (customerOrder.cartItems.length > 0) {
-          if (validateItemsQuantity(customerOrder.cartItems)) {
+        if (customerOrder.items.length > 0) {
+          if (validateItemsQuantity(customerOrder.items)) {
             yield ValidSubmission(customerOrder: customerOrder);
           } else {
             yield InvalidSubmission(
@@ -107,26 +107,26 @@ class ItemMenuBloc extends Bloc<ItemMenuEvent, ItemMenuState> {
     productFOC = await ItemsMenuRepo.repo.getProductFoc();
 
     for (var p in products) {
-      ProductPrices pp;
-      for (var item in productPrices) {
-        if (item.productId == p.productId &&
-            item.customerGroupId == customerOrder.customer.customerGroupId) {
-          pp = item;
-        }
-      }
+      // ProductPrices pp;
+      // for (var item in productPrices) {
+      //   if (item.productId == p.productId &&
+      //       item.customerGroupId == customerOrder.customer.customerGroupId) {
+      //     pp = item;
+      //   }
+      // }
 
-      if (pp == null) {
-        pp = ProductPrices(
-          customerGroupId: p.customerGroupId,
-          productId: p.productId,
-          cashPrice: p.packPrice,
-          creditPrice: p.creditPrice,
-        );
-      }
+      // if (pp == null) {
+      //   pp = ProductPrices(
+      //     customerGroupId: p.customerGroupId,
+      //     productId: p.productId,
+      //     cashPrice: p.packPrice,
+      //     creditPrice: p.creditPrice,
+      //   );
+      // }
       if (customerOrder.paymentmode == PAYMENTMODE.CASH) {
-        p.price = pp.cashPrice;
+        p.price = p.packPrice;
       } else if (customerOrder.paymentmode == PAYMENTMODE.CREDIT) {
-        p.price = pp.creditPrice;
+        p.price = p.creditPrice;
       }
       for (var item in productFOC) {
         if (item.productId == int.parse(p.productId)) {

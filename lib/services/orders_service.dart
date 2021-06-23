@@ -89,18 +89,28 @@ class SPostOrder extends ServiceCommon {
         log(map.toString(), name: this.name);
         bool status = await Library.uploadToServer(Config.putOrderVisitAPILink,
             jsonString: map.toString());
-            if(status) {
-
-        await db.update(TableOrderMaster.tableName,
-            {TableOrderMaster.status: status ? 1 : 0},
-            where: '${TableOrderMaster.id} = ?',
-            whereArgs: [e['order_android_id']]);
-        await db.update(
-            TableVisits.tableName, {TableVisits.isUpload: status ? 1 : 0},
-            where: '${TableVisits.isOrder} = ? and ${TableVisits.orderId} = ?',
-            whereArgs: [1, e['order_android_id']]);
-            this.verboseBloc.add(VerboseNotify(message: 'Order Uploaded'));
-            }
+        if (status) {
+          await db.update(TableOrderMaster.tableName,
+              {TableOrderMaster.status: status ? 1 : 0},
+              where: '${TableOrderMaster.id} = ?',
+              whereArgs: [e['order_android_id']]);
+          await db.update(
+              TableVisits.tableName, {TableVisits.isUpload: status ? 1 : 0},
+              where:
+                  '${TableVisits.isOrder} = ? and ${TableVisits.orderId} = ?',
+              whereArgs: [1, e['order_android_id']]);
+          this.verboseBloc.add(VerboseNotify(message: 'Order Uploaded'));
+        } else {
+          await db.delete(TableOrderMaster.tableName,
+              where: '${TableOrderMaster.id} = ?',
+              whereArgs: [e['order_android_id']]);
+          await db.delete(TableOrderDetail.tableName,
+              where: '${TableOrderDetail.masterId} = ?',
+              whereArgs: [e['order_android_id']]);
+          await db.delete(TableVisits.tableName,
+              where: '${TableVisits.orderId} = ?',
+              whereArgs: [e['order_android_id']]);
+        }
       });
     cycleComplete = true;
   }

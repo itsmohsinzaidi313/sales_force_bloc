@@ -15,7 +15,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   InvoiceBloc() : super(InvoiceBlocInitial());
   List<Invoice> invoices = [];
   Invoice invoice;
-  String payment = '';
   String bank = '';
   String chequeNo = '';
   String clearingDate = '';
@@ -32,13 +31,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       if (event is PayInvoiceEvent) {
         invoice = event.invoice;
         yield PayInvoiceState(invoice: event.invoice);
-      } else if (event is PaymentChangedEvent) {
-        if (event.payment > double.parse(invoice.balance)) {
-          yield InvalidPaymentState(message: 'Invalid amount');
-        } else {
-          payment = event.payment.toString();
-          yield ValidPaymentState(value: event.payment.toString());
-        }
       } else if (event is ChequeNoChanged) {
         if (event.chequeNo == '') {
           yield InvalidChequeNoState(message: 'Please enter cheque no');
@@ -63,15 +55,29 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           yield ValidClearingDateEvent();
         }
       } else if (event is PayInvoicePressed) {
+        // CASH PAYMENT SAVING
         if (paymentmode == PAYMENTMODE.CASH) {
-          if (payment == '' || double.tryParse(payment) == null) {
+          if (event.payment == '' || double.tryParse(event.payment) == null) {
+            yield InvalidPaymentState(message: 'Invalid amount');
+          } else if (double.parse(event.payment) >
+              double.parse(invoice.balance)) {
             yield InvalidPaymentState(message: 'Invalid amount');
           } else {
-            InvoiceRepo.repo.payInvoice(
-                invoice, bank, chequeNo, payment, clearingDate, paymentmode);
+            bool status = await InvoiceRepo.repo.payInvoice(
+                invoice: invoice,
+                amount: event.payment,
+                paymentmode: paymentmode);
+            if (status) {
+              yield PaymentSuccessfulState(message: 'Invoice saved.');
+            } else {
+              yield PaymentSuccessfulState(
+                  message: 'Invoice cannot be saved at the moment.');
+            }
           }
-        } else if (paymentmode == PAYMENTMODE.CHEQUE) {
-          if (payment == '' || double.tryParse(payment) == null) {
+        }
+        // CHEQUE PAYMENT SAVING
+        else if (paymentmode == PAYMENTMODE.CHEQUE) {
+          if (event.payment == '' || double.tryParse(event.payment) == null) {
             yield InvalidPaymentState(message: 'Invalid amount');
           } else if (clearingDate == '' ||
               DateTime.tryParse(clearingDate) == null) {
@@ -83,7 +89,12 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
             yield InvalidChequeNoState(message: 'Please enter cheque no');
           } else {
             bool status = await InvoiceRepo.repo.payInvoice(
-                invoice, bank, chequeNo, payment, clearingDate, paymentmode);
+                invoice: invoice,
+                bank: bank,
+                chequeNo: chequeNo,
+                amount: event.payment,
+                clearingDate: clearingDate,
+                paymentmode: paymentmode);
             if (status) {
               yield PaymentSuccessfulState(message: 'Payment saved');
             } else {

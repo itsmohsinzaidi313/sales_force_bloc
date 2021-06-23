@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/database/sql.dart';
+import 'package:sales_force/database/tables/customer_table.dart';
 import 'package:sales_force/database/tables/users_table.dart';
 import 'package:sales_force/shared/import_data.dart';
 import 'package:sales_force/shared/config.dart';
@@ -50,7 +51,7 @@ class Library {
     return formatter.format(DateTime.now());
   }
 
-  static Future<ImportData> fetchData({VerboseBloc bloc}) async {
+  static Future<ImportData> fetchInstallationData({VerboseBloc bloc}) async {
     try {
       Response response = await get(Uri.parse(Config.installApi)).timeout(
           Duration(seconds: Config.ConnectionTimeout),
@@ -77,6 +78,41 @@ class Library {
     }
   }
 
+  static Future<ImportData> fetchSyncData({VerboseBloc bloc}) async {
+    try {
+      DateTime dateTime = DateTime.now();
+      String url =
+          '${Config.syncAPILink}${DateFormat('yyyy-MM-dd,HH:mm:ss').format(dateTime)}';
+      Response response = await get(Uri.parse(url))
+          .timeout(Duration(seconds: Config.ConnectionTimeout),
+              onTimeout: () => null)
+          .onError((error, stackTrace) {
+        log('fetchSyncData', error: error);
+        return null;
+      });
+      // log(url, name: 'fetchSyncData');
+      log('SERVER RESPONSE: ${response.statusCode}',
+          name: 'Library.fetchSyncData');
+      if (response != null && response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        log('STATUS:${data['status']} MESSAGE:${data['message']}',
+            name: 'Library.fetchSyncData');
+        return ImportData(
+            status: data['status'].toString(),
+            message: data['message'].toString(),
+            data: data['data'],
+            bloc: bloc);
+      }
+      return ImportData(
+          status: 'failure',
+          message: 'Server Error\nStatusCode: ${response.statusCode}',
+          data: {});
+    } catch (e) {
+      log('ERROR ON fetchSyncData', error: e);
+      return null;
+    }
+  }
+
   /// Creates database on the device
   /// When [reinstall] parameter is true, all tables will be dropped and recreated
   /// When [forceUpdate] is true all tables will be deleted (except the tables defined as skip) and all record is imported from web server
@@ -92,7 +128,7 @@ class Library {
         await sql.deleteAllTables(await Config.database);
       }
       await sql.initDatabase(); // CREATES/UPGRADES DATABASE
-      final import = await Library.fetchData(
+      final import = await Library.fetchInstallationData(
           bloc: context
               .read<VerboseBloc>()); // FETCHES DATA AND INSTANCIATES ImportData
       if (import.status == 'success') {
@@ -103,6 +139,26 @@ class Library {
           context.read<VerboseBloc>().add(
               VerboseNewEvent(title: '', message: 'Installation successful.'));
           log('Installation completed', name: 'Library.install');
+          // try {
+          //   final syncImport =
+          //       await fetchSyncData(bloc: context.read<VerboseBloc>());
+          //   if (syncImport.status == 'success') {
+          //     x = await import.importSync(await Config.database);
+          //     if (x) {
+          //       await Future.delayed(Duration(seconds: 2));
+          //       context.read<VerboseBloc>().add(
+          //           VerboseNewEvent(title: '', message: 'Sync successful.'));
+          //     } else {
+          //       await Future.delayed(Duration(seconds: 2));
+          //       context
+          //           .read<VerboseBloc>()
+          //           .add(VerboseNewEvent(title: '', message: 'Sync failed.'));
+          //     }
+          //   }
+          // } catch (e) {
+          //   await Future.delayed(Duration(seconds: 2));
+          //   VerboseNewEvent(title: '', message: e.toString());
+          // }
           return true;
         } else {
           await Future.delayed(Duration(seconds: 2));
@@ -167,8 +223,10 @@ class Library {
                 headers: header, body: {'json': jsonString})
             .timeout(Duration(seconds: Config.ConnectionTimeout),
                 onTimeout: () => null)
-            .catchError(
-                (onError) => log('ERROR ON uploadToServer', error: onError));
+            .catchError((onError) {
+          log('ERROR ON uploadToServer', error: onError);
+          return null;
+        });
 
         // if (url == Config.putTrackingAPILink) log('LOCATION SENT');
         // if (url == Config.putInvoiceAPILink) log('INVOICE SENT');
@@ -178,11 +236,19 @@ class Library {
           Map response = jsonDecode(onPost.body);
           //_log.i('ENTRY SERVER UPLOAD');
           //print('STATUS CODE: ${onValue.statusCode}');
-          log('SERVER REPLY\nSTATUS: ${response['status'].toString().toUpperCase()}\nDATA: ${response['data']}');
+          log('SERVER REPLY\nSTATUS: ${response['status'].toString().toUpperCase()}\nMESSAGE: ${response['message'].toString().toUpperCase()}\nDATA: ${response['data']}',
+              name: 'uploadToServer');
           if (response['status'].toString().contains('success')) status = true;
           //print('MESSAGE: ${response['message'].toString().toUpperCase()}');
           //log.i('DATA: ${response['data']}');
           //_log.i('EXIT SERVER UPLOAD');
+          if (status && url == Config.createCustomerAPILink) {
+            Map<String, dynamic> map = jsonDecode(jsonString);
+            (await Config.database).update(TableCustomer.tableName,
+                {TableCustomer.customerId: response['data']['customer_id']},
+                where: '${TableCustomer.id} = ?',
+                whereArgs: [map['android_customer_id']]);
+          }
         }
       }
       return status;

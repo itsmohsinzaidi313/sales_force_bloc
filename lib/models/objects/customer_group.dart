@@ -1,9 +1,15 @@
-class CustomerGroup{
-  String customer_group_id;
-  String name;
-  CustomerGroup({this.customer_group_id, this.name});
+import 'package:sales_force/database/tables/customer_groups_table.dart';
 
-  getList(){
-    return [this.customer_group_id, this.name];
+class CustomerGroup {
+  String customerGroupId;
+  String name;
+  CustomerGroup({this.customerGroupId, this.name});
+
+  CustomerGroup.withMap(Map<String, dynamic> i)
+      : customerGroupId = i[TableCustomerGroups.customerGroupId],
+        name = i[TableCustomerGroups.name];
+
+  getList() {
+    return [this.customerGroupId, this.name];
   }
 }

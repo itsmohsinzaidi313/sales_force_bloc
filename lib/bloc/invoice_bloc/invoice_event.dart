@@ -35,4 +35,7 @@ class ClearingDateChanged extends InvoiceEvent {
   ClearingDateChanged({this.clearingDate});
 }
 
-class PayInvoicePressed extends InvoiceEvent {}
+class PayInvoicePressed extends InvoiceEvent {
+  final String payment;
+  PayInvoicePressed({this.payment});
+}

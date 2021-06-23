@@ -6,11 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
+import 'package:sales_force/database/tables/customer_groups_table.dart';
 import 'package:sales_force/database/tables/customer_table.dart';
+import 'package:sales_force/models/objects/customer_group.dart';
+import 'package:sales_force/repositories/customer_repository.dart';
+import 'package:sales_force/services/service_control.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/shared/config.dart';
 import 'package:sales_force/shared/constants.dart';
 import 'package:sales_force/shared/library.dart';
+import 'package:sales_force/shared/widgets/custom_drop_down.dart';
 import 'package:sales_force/shared/widgets/verbose_widget.dart';
 
 class MenuPage extends StatelessWidget {
@@ -167,32 +172,32 @@ class MenuPage extends StatelessWidget {
             iconSize: iconSize,
             buttonColor: blueColor,
             onPressed: () => onInvoicesPressed(context)),
-        AppTheme.roundIconButton(
-            text: 'VIEW VISITS',
-            textStyle: TextStyle(
-                fontWeight: FontWeight.bold,
-                // fontSize: fontSize,
-                color: Colors.white),
-            icon: Icon(
-              Icons.not_listed_location,
-              color: Colors.white,
-            ),
-            iconSize: iconSize,
-            buttonColor: redColor,
-            onPressed: () => onViewVisitsPressed(context)),
-        AppTheme.roundIconButton(
-            text: 'NEW VISITS',
-            textStyle: TextStyle(
-                fontWeight: FontWeight.bold,
-                // fontSize: fontSize,
-                color: Colors.white),
-            icon: Icon(
-              Icons.add_location,
-              color: Colors.white,
-            ),
-            iconSize: iconSize,
-            buttonColor: redColor,
-            onPressed: () => onNewVisitsPressed(context)),
+        // AppTheme.roundIconButton(
+        //     text: 'VIEW VISITS',
+        //     textStyle: TextStyle(
+        //         fontWeight: FontWeight.bold,
+        //         // fontSize: fontSize,
+        //         color: Colors.white),
+        //     icon: Icon(
+        //       Icons.not_listed_location,
+        //       color: Colors.white,
+        //     ),
+        //     iconSize: iconSize,
+        //     buttonColor: redColor,
+        //     onPressed: () => onViewVisitsPressed(context)),
+        // AppTheme.roundIconButton(
+        //     text: 'NEW VISITS',
+        //     textStyle: TextStyle(
+        //         fontWeight: FontWeight.bold,
+        //         // fontSize: fontSize,
+        //         color: Colors.white),
+        //     icon: Icon(
+        //       Icons.add_location,
+        //       color: Colors.white,
+        //     ),
+        //     iconSize: iconSize,
+        //     buttonColor: redColor,
+        //     onPressed: () => onNewVisitsPressed(context)),
         AppTheme.roundIconButton(
             text: 'ADD CUSTOMER',
             textStyle:
@@ -252,8 +257,8 @@ class MenuPage extends StatelessWidget {
   Future<void> choice(BuildContext context, String choice) async {
     if (choice == logout) {
       if (await Library.logout(Config.user.userId))
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil('/login', (route) => false);
+        ServiceControl.control.stopAllService();
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     } else if (choice == settings) {
       Navigator.of(context).pushNamed('/settings');
     } else if (choice == update) {}
@@ -261,6 +266,7 @@ class MenuPage extends StatelessWidget {
 
   void createCustomer(BuildContext context) {
     String shopName, firstName, lastName, contact, address;
+    bool requestSent = true;
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -297,6 +303,18 @@ class MenuPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: <Widget>[
+                      // FutureBuilder(
+                      //   future: CustomerRepo.repo.getAllCustomerGroups(),
+                      //   builder: (context, snapshot) {
+                      //     if (snapshot.hasData) {
+                      //       List<CustomerGroup> list = snapshot.data;
+                      //       DropdownButton(
+                      //         items: list.map<DropdownMenuItem<CustomerGroup>>((e) => DropdownMenuItem(value: e, child: Text(e.name),)).toList(),
+                      //         onChanged: (value) => ,
+                      //       );
+                      //     }
+                      //   },
+                      // ),
                       TextField(
                         decoration: InputDecoration(
                           hintText: 'Shop Name',
@@ -346,14 +364,22 @@ class MenuPage extends StatelessWidget {
                         'Register',
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
-                      onPressed: () => onCreateCustomerPressed(
+                      onPressed: () async {
+                        if (requestSent) {
+                          requestSent = false;
+                          await onCreateCustomerPressed(
                             context,
                             shopName: shopName ?? '',
                             firstName: firstName ?? '',
                             lastName: lastName ?? '',
                             contact: contact ?? '',
                             address: address ?? '',
-                          )),
+                          );
+                          requestSent = true;
+                        } else {
+                          AppTheme.snackbar(context, 'Please wait');
+                        }
+                      }),
                 ),
               ],
             ),
@@ -363,7 +389,7 @@ class MenuPage extends StatelessWidget {
     );
   }
 
-  void onCreateCustomerPressed(BuildContext context,
+  Future<void> onCreateCustomerPressed(BuildContext context,
       {String shopName = '',
       String firstName = '',
       String lastName = '',
@@ -373,7 +399,7 @@ class MenuPage extends StatelessWidget {
         firstName.isNotEmpty &&
         contact.isNotEmpty &&
         address.isNotEmpty) {
-      Position position = await Geolocator.getCurrentPosition(
+      final position = await Geolocator.getCurrentPosition(
               desiredAccuracy: LocationAccuracy.high)
           .timeout(
               Duration(
@@ -382,20 +408,9 @@ class MenuPage extends StatelessWidget {
               onTimeout: () => null);
       if (position != null) {
         try {
-          final position = await Geolocator.getCurrentPosition();
-          log({
-            TableCustomer.userId: Config.user.userId,
-            TableCustomer.firstName: firstName,
-            TableCustomer.lastName: lastName,
-            TableCustomer.mobile: contact,
-            TableCustomer.shopName: shopName,
-            TableCustomer.address: address,
-            TableCustomer.shopLat: position.latitude,
-            TableCustomer.shopLong: position.longitude,
-            TableCustomer.status: 0
-          }.toString());
           int id =
               await (await Config.database).insert(TableCustomer.tableName, {
+            TableCustomer.customerId: 0,
             TableCustomer.userId: Config.user.userId,
             TableCustomer.firstName: firstName,
             TableCustomer.lastName: lastName,

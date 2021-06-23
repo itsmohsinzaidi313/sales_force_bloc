@@ -21,10 +21,14 @@ class LoginPage extends StatelessWidget {
       listener: (context, state) {
         if (state is LoginSuccessful) {
           AppTheme.snackbar(context, state.message);
-          Config.database.then((value) => ServiceControl.control
-              .initializeDatabaseDependentServices(
-                  database: value, bloc: context.read<VerboseBloc>()));
-          Navigator.pushNamedAndRemoveUntil(context, '/menu', (route) => false);
+          Config.database.then((value) {
+            ServiceControl.control.initializeDatabaseDependentServices(
+                database: value, bloc: context.read<VerboseBloc>());
+            ServiceControl.control.startAllServices();
+          }).whenComplete(() => Navigator.pushNamedAndRemoveUntil(
+              context, '/menu', (route) => false));
+        } else if (state is LoginFailed) {
+          AppTheme.snackbar(context, state.message);
         } else if (state is InvalidSubmission) {
           AppTheme.snackbar(context, state.message);
         } else if (state is InvalidPassword) {
@@ -116,7 +120,8 @@ class LoginPage extends StatelessWidget {
 class LoginButton extends StatelessWidget {
   final String email;
   LoginButton({@required this.email});
-  final Image logo = Image.asset('images/icon2.jpg');
+  // final Image logo = Image.asset('images/icon2.jpg');
+  final Image logo = Image.asset('images/devaj_logo_small.png');
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -160,7 +165,8 @@ class LoginButton extends StatelessWidget {
 }
 
 class LoginFields extends StatelessWidget {
-  final Image logo = Image.asset('images/icon2.jpg');
+  // final Image logo = Image.asset('images/icon2.jpg');
+  final Image logo = Image.asset('images/devaj_logo_small.png');
   final user = User();
   @override
   Widget build(BuildContext context) {
@@ -210,8 +216,9 @@ class LoginFields extends StatelessWidget {
                       'Sign in',
                       style: TextStyle(color: Colors.white, fontSize: 25.0),
                     ),
-                    onPressed: () =>
-                        context.read<LoginBloc>().add(LoginSubmit(user: this.user)),
+                    onPressed: () => context
+                        .read<LoginBloc>()
+                        .add(LoginSubmit(user: this.user)),
                   ),
                 ),
               ],

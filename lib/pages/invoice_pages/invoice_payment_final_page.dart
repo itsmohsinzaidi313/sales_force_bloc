@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/shared/app_theme.dart';
 import 'package:sales_force/models/objects/json_elements.dart';
-import '../../shared/library.dart';
 
 //region CASHPAYMENT
 class CashPaymentFinal extends StatefulWidget {
@@ -52,163 +51,163 @@ class _CashPaymentFinalState extends State<CashPaymentFinal> {
         AppTheme.snackbar(context, state.message);
       },
       child: Scaffold(
-          appBar: AppBar(
-            title: Text('Cash Payment'),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: SingleChildScrollView(
-              child: Container(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                          leftPadding, topPadding, rightPadding, bottomPadding),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(secondText.toUpperCase(),
-                                style: setTextStyle()),
-                          ),
-                          Text(invoice.invoiceNumber, style: setTextStyle()),
-                        ],
-                      ),
-                    ), // INVOICE NUMBER
-                    Divider(
-                      thickness: dividerThickness,
+        appBar: AppBar(
+          title: Text('Cash Payment'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(secondText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(invoice.invoiceNumber, style: setTextStyle()),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                          leftPadding, topPadding, rightPadding, bottomPadding),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(seventhText.toUpperCase(),
-                                style: setTextStyle()),
-                          ),
-                          Text(invoice.dateAdded, style: setTextStyle()),
-                        ],
-                      ),
-                    ), // INVOICE DATE
-                    Divider(
-                      thickness: dividerThickness,
+                  ), // INVOICE NUMBER
+                  Divider(
+                    thickness: dividerThickness,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(seventhText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(invoice.dateAdded, style: setTextStyle()),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                      leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(firstText.toUpperCase(),
+                  ), // INVOICE DATE
+                  Divider(
+                    thickness: dividerThickness,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(firstText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(invoice.customerName, style: setTextStyle()),
+                      ],
+                    ),
+                  ), // CUSTOMER NAME
+                  Divider(
+                    thickness: dividerThickness,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(fifthText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(invoice.totalAmount, style: setTextStyle()),
+                      ],
+                    ),
+                  ), // TOTAL AMOUNT
+                  Divider(
+                    thickness: dividerThickness,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(forthText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(invoice.discount, style: setTextStyle()),
+                      ],
+                    ),
+                  ), // DISCOUNT
+                  Divider(
+                    thickness: dividerThickness,
+                  ), // T
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(sixthText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(invoice.paidAmount, style: setTextStyle()),
+                      ],
+                    ),
+                  ), // PAID AMOUNT
+                  Divider(
+                    thickness: dividerThickness,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(thirdText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(
+                            (double.parse(invoice.totalAmount) -
+                                    double.parse(invoice.paidAmount))
+                                .toString(),
                             style: setTextStyle()),
-                      ),
-                      Text(invoice.customerName, style: setTextStyle()),
-                    ],
+                      ],
+                    ),
+                  ), // BALANCE AMOUNT
+                  Divider(
+                    thickness: dividerThickness,
                   ),
-                ), // CUSTOMER NAME
-                Divider(
-                  thickness: dividerThickness,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(fifthText.toUpperCase(),
-                            style: setTextStyle()),
-                      ),
-                      Text(invoice.totalAmount, style: setTextStyle()),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        leftPadding, topPadding, rightPadding, bottomPadding),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(eighthText.toUpperCase(),
+                              style: setTextStyle()),
+                        ),
+                        Text(
+                          invoice.amountReceived,
+                          style: setTextStyle(),
+                        )
+                      ],
+                    ),
+                  ), // AMOUNT RECEIVED
+                  Divider(
+                    thickness: dividerThickness,
                   ),
-                ), // TOTAL AMOUNT
-                Divider(
-                  thickness: dividerThickness,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(forthText.toUpperCase(),
-                            style: setTextStyle()),
-                      ),
-                      Text(invoice.discount, style: setTextStyle()),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AppTheme.roundElevatedButton(
+                      text: 'PAY',
+                      onPressed: () {},
+                    ),
                   ),
-                ), // DISCOUNT
-                Divider(
-                  thickness: dividerThickness,
-                ), // T
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(sixthText.toUpperCase(),
-                            style: setTextStyle()),
-                      ),
-                      Text(invoice.paidAmount, style: setTextStyle()),
-                    ],
-                  ),
-                ), // PAID AMOUNT
-                Divider(
-                  thickness: dividerThickness,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(thirdText.toUpperCase(),
-                            style: setTextStyle()),
-                      ),
-                      Text(
-                          (double.parse(invoice.totalAmount) -
-                                  double.parse(invoice.paidAmount))
-                              .toString(),
-                          style: setTextStyle()),
-                    ],
-                  ),
-                ), // BALANCE AMOUNT
-                Divider(
-                  thickness: dividerThickness,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(eighthText.toUpperCase(),
-                            style: setTextStyle()),
-                      ),
-                      Text(
-                        invoice.amountReceived,
-                        style: setTextStyle(),
-                      )
-                    ],
-                  ),
-                ), // AMOUNT RECEIVED
-                Divider(
-                  thickness: dividerThickness,
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AppTheme.roundElevatedButton(
-                    text: 'PAY',
-                    onPressed: () {},
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 }
@@ -261,8 +260,9 @@ class _ChequePaymentFinalState extends State<ChequePaymentFinal> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<VerboseBloc, VerboseState>(
+      listenWhen: (previous, current) => current is VerboseSnackBarState,
       listener: (context, state) {
-        // TODO: implement listener
+        AppTheme.snackbar(context, state.message);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -456,7 +456,7 @@ class _ChequePaymentFinalState extends State<ChequePaymentFinal> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                       leftPadding, topPadding, rightPadding, bottomPadding),
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     child: Text('PAY', style: setTextStyle()),
                     onPressed: () {},
                   ),

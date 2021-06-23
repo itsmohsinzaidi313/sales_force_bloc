@@ -49,12 +49,13 @@ class SPostInvoice extends ServiceCommon {
           whereArgs: [Config.user.userId, '0']);
 
       if (invoices != null) {
-        invoices.forEach((inv) async {
+        for (var inv in invoices) {
           Map<String, String> packet = {
             '${jsonEncode('invoice_payment')}': '[${jsonEncode(inv)}]'
           };
           bool status = false;
           if (packet != null) {
+            log(packet.toString(), name: 'Invoice Service');
             status = await Library.uploadToServer(Config.putInvoiceAPILink,
                 jsonString: packet.toString());
             if (status) {
@@ -65,7 +66,7 @@ class SPostInvoice extends ServiceCommon {
               this.verboseBloc.add(VerboseNotify(message: 'Invoice Uploaded'));
             }
           }
-        });
+        }
       }
     } catch (e) {
       log('>>>ERROR ON INVOICE UPLOAD SERVICE\n$e');

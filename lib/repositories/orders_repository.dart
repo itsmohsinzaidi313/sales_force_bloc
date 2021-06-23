@@ -63,10 +63,10 @@ class OrdersRepo {
     if (masterId > 0) {
       List<Map<String, dynamic>> detail = order.orderDetail;
       Batch batch = db.batch();
-      detail.forEach((detail) async {
-        detail[TableOrderDetail.masterId] = masterId;
-        batch.insert(TableOrderDetail.tableName, detail);
-      });
+      for (var item in detail) {
+        item[TableOrderDetail.masterId] = masterId;
+        batch.insert(TableOrderDetail.tableName, item);
+      }
       List<dynamic> detailId = await batch.commit();
       if (detailId.length == detail.length) {
         return true;

@@ -71,7 +71,7 @@ class _CashPaymentState extends State<CashPayment> {
     );
   }
 
-  showCashPayment() {
+  Widget showCashPayment() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Form(

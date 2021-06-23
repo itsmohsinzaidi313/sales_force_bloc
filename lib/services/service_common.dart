@@ -46,10 +46,10 @@ abstract class ServiceCommon {
   void _operation() async {
     if (active && cycleComplete) {
       try {
-        log('RESPONDING', name: '$name');
+        log('RESPONDING', name: name);
         await perform();
       } catch (e) {
-        log('SERVICE $name CRASHED: $e', name: 'ServiceCommon');
+        log('SERVICE $name CRASHED: $e', name: name);
         cycleComplete = true;
       }
     }

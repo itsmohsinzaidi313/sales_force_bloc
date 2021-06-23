@@ -9,6 +9,7 @@ import 'package:sales_force/database/tables/invoices_table.dart';
 import 'package:sales_force/database/tables/product_foc_table.dart';
 import 'package:sales_force/database/tables/product_prices_table.dart';
 import 'package:sales_force/database/tables/products_table.dart';
+import 'package:sales_force/database/tables/sync_apis_table.dart';
 import 'package:sales_force/database/tables/users_table.dart';
 import 'package:sales_force/database/tables/users_type_table.dart';
 import 'package:sqflite/sqflite.dart';
@@ -79,11 +80,10 @@ class ImportData {
     return importSuccessful;
   }
 
-  _getCustomersList(List<dynamic> i, Database db) async {
+  Future<void> _getCustomersList(List<dynamic> i, Database db) async {
     _count = 1;
     for (var item in i) {
-      _triggerBlocEvent(
-          'Customers', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('Customers', 'Downloading $_count/${i.length}');
       await db.insert(TableCustomer.tableName, {
         TableCustomer.customerId: item['customer_id'],
         TableCustomer.customerGroupId: item['customer_group_id'],
@@ -109,11 +109,10 @@ class ImportData {
     }
   }
 
-  _getProductPricesList(List<dynamic> i, Database db) async {
+  Future<void> _getProductPricesList(List<dynamic> i, Database db) async {
     _count = 1;
     for (var item in i) {
-      _triggerBlocEvent(
-          'ProductPrices', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('ProductPrices', 'Downloading $_count/${i.length}');
       await db.insert(TableProductPrices.tableName, {
         TableProductPrices.productId: item['product_id'],
         TableProductPrices.customerGroupId: item['customer_group_id'],
@@ -126,8 +125,7 @@ class ImportData {
   Future<void> _getCustomerGroupList(List<dynamic> i, Database db) async {
     _count = 1;
     for (var item in i) {
-      _triggerBlocEvent(
-          'CustomerGroup', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('CustomerGroup', 'Downloading $_count/${i.length}');
       await db.insert(TableCustomerGroups.tableName, {
         TableCustomerGroups.customerGroupId: item['customer_group_id'],
         TableCustomerGroups.name: item['name'],
@@ -162,8 +160,7 @@ class ImportData {
   Future<void> _getUserTypesList(List<dynamic> i, Database db) async {
     _count = 1;
     for (var item in i) {
-      _triggerBlocEvent(
-          'UserTypes', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('UserTypes', 'Downloading $_count/${i.length}');
       await db.insert(TableUsersType.tableName, {
         TableUsersType.userTypeId: item['user_type_id'],
         TableUsersType.title: item['user_type_title'],
@@ -175,8 +172,7 @@ class ImportData {
   Future<void> _getCategoriesList(List<dynamic> i, Database db) async {
     _count = 1;
     for (var item in i) {
-      _triggerBlocEvent(
-          'Categories', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('Categories', 'Downloading $_count/${i.length}');
       await db.insert(TableCategories.tableName, {
         TableCategories.categoryId: item['product_category_id'],
         TableCategories.userId: item['user_id'],
@@ -205,8 +201,7 @@ class ImportData {
     _count = 1;
 
     for (var item in i) {
-      _triggerBlocEvent(
-          'Invoices', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('Invoices', 'Downloading $_count/${i.length}');
       await db.insert(TableInvoices.tableName, {
         TableInvoices.invoiceId: item['invoice_id'],
         TableInvoices.orderId: item['order_id'],
@@ -229,8 +224,7 @@ class ImportData {
   Future<void> _getProductsList(List<dynamic> i, Database db) async {
     _count = 1;
     for (var item in i) {
-      _triggerBlocEvent(
-          'Products', 'Downloading $_count/${i.length}');
+      _triggerBlocEvent('Products', 'Downloading $_count/${i.length}');
       await db.insert(TableProducts.tableName, {
         TableProducts.productId: item['product_id'],
         TableProducts.categoryId: item['product_category_id'],
@@ -251,15 +245,13 @@ class ImportData {
       });
       getProductFoc(item['foc_slab'], db);
     }
-    ;
   }
 
   Future<void> getProductFoc(List<dynamic> i, Database db) async {
     if (i != null) {
       _count = 1;
       for (var item in i) {
-        _triggerBlocEvent(
-            'ProductFoc', 'Downloading $_count/${i.length}');
+        _triggerBlocEvent('ProductFoc', 'Downloading $_count/${i.length}');
         await db.insert(TableProductFOC.tableName, {
           TableProductFOC.productId: item['product_id'],
           TableProductFOC.start: item['start'],
@@ -268,6 +260,24 @@ class ImportData {
         });
       }
     }
+  }
+
+  Future<bool> importSync(Database db) async {
+    int id = 0;
+    _count = 1;
+    List<dynamic> list = data['data'];
+    for (var item in list) {
+      _triggerBlocEvent('ProductFoc', 'Downloading $_count/${list.length}');
+      id = await db.insert(TableSyncApis.tableName, {
+        TableSyncApis.serverId: item['sync_pk'],
+        TableSyncApis.module: item['sync_module'],
+        TableSyncApis.operation: item['sync_operation'],
+        TableSyncApis.url: item['sync_service'],
+        TableSyncApis.createdOn: item['createdon'],
+        TableSyncApis.isUsed: 1,
+      });
+    }
+    return id > 0 ? true : false;
   }
 
   void _triggerBlocEvent(String title, String message) {

@@ -41,14 +41,18 @@ class OrderPaymentBloc extends Bloc<OrderPaymentEvent, OrderPaymentState> {
           yield ValidDiscount();
         }
       } else if (event is SubmitOrder) {
-        final status = await OrdersRepo.repo.saveOrder(customerOrder);
-        String message;
-        if (status) {
-          message = 'Order Saved';
+        if (customerOrder.items.isNotEmpty) {
+          final status = await OrdersRepo.repo.saveOrder(customerOrder);
+          String message;
+          if (status) {
+            message = 'Order Saved';
+          } else {
+            message = 'Order cannot be saved';
+          }
+          yield OrderSavedState(orderSaved: status, message: message);
         } else {
-          message = 'Order cannot be saved';
+          yield OrderPaymentErrorState(message: 'Not items in cart');
         }
-        yield OrderSavedState(orderSaved: status, message: message);
       }
     } catch (e) {
       yield OrderPaymentErrorState(message: e.toString());

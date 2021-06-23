@@ -80,7 +80,7 @@ class InvoicePage extends StatelessWidget {
   List<Widget> invoiceView(BuildContext context, List<Invoice> invoices) =>
       invoices.map((e) {
         Widget widget;
-        if (double.parse(e.totalAmount) == double.parse(e.paidAmount)) {
+        if (double.parse(e.paidAmount) >= double.parse(e.totalAmount)) {
           widget = ElevatedButton(
             child: AppTheme.text(text: 'PAID', color: Colors.blue),
             style: ButtonStyle(
@@ -97,93 +97,22 @@ class InvoicePage extends StatelessWidget {
         return Card(
           color: Colors.white,
           child: ListTile(
+              isThreeLine: true,
               contentPadding:
                   EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              isThreeLine: true,
-              title: AppTheme.text(text: '${e.customerName}', fontSize: 20),
+              title: AppTheme.text(
+                text: '${e.customerName}',
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
               subtitle: AppTheme.text(
-                  text: '${e.invoiceNumber}\n${e.amount}', fontSize: 20),
+                  text:
+                      'INVOICE#: ${e.invoiceNumber}\nDATE: ${e.createdon.substring(0, 10)}\nAMOUNT: ${e.balance}',
+                  fontSize: 14),
               trailing: widget),
         );
       }).toList();
 
   void passEvent(BuildContext context, InvoiceEvent event) =>
       context.read<InvoiceBloc>().add(event);
-
-  // {
-  //   try {
-  //     List<Widget> widgets = [];
-  //     for (Invoice value in invoices) {
-  //       double invoiceAmount = double.parse(value.totalAmount);
-  //       double paidAmount = double.parse(value.paidAmount);
-  //       Widget widget;
-  //       if (invoiceAmount == paidAmount)
-  //         widget = ElevatedButton(
-  //           child: AppTheme.text(text: 'PAID', color: Colors.blue),
-  //           style: ButtonStyle(
-  //               backgroundColor: MaterialStateProperty.all(Colors.white)),
-  //           onPressed: () => false,
-  //         );
-  //       else
-  //         widget = AppTheme.rectangleRaisedButton(
-  //             text: 'PAY', onPressed: () async => onTap(value));
-  //       widgets.add(Card(
-  //           color: Colors.white,
-  //           child: ListTile(
-  //               contentPadding:
-  //                   EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-  //               isThreeLine: true,
-  //               title:
-  //                   AppTheme.text(text: '${value.customerName}', fontSize: 20),
-  //               subtitle: AppTheme.text(
-  //                   text: '${value.invoiceNumber}\n${value.amount}',
-  //                   fontSize: 20),
-  //               trailing: widget)));
-  //     }
-  //     if (widgets.length == 0)
-  //       widgets.add(Card(
-  //         color: Colors.white,
-  //         child: ListTile(
-  //             contentPadding:
-  //                 EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-  //             isThreeLine: true,
-  //             title: AppTheme.text(text: 'No Invoies', fontSize: 20),
-  //             subtitle: AppTheme.text(
-  //                 text: 'There are no invoices to display.', fontSize: 20),
-  //             trailing: Icon(
-  //               Icons.info_outline,
-  //               color: Colors.blue,
-  //             )),
-  //       ));
-  //     return widgets;
-  //   } catch (e) {
-  //     List<Widget> widgets = [];
-
-  //     widgets.add(Card(
-  //       child: Text(e.toString()),
-  //     ));
-  //     return widgets;
-  //   }
-  // }
-
-  // onTap(Invoice invoice, BuildContext context) {
-  //   Navigator.push(
-  //       context,
-  //       new MaterialPageRoute(
-  //           builder: (context) => InvoicePayment(
-  //               invoice: JSONInvoice(
-  //                   androidPaymentId: invoice.invoiceId,
-  //                   paymentUserId: invoice.userId,
-  //                   paymentOrderId: invoice.orderId,
-  //                   paymentInvoiceId: invoice.invoiceId,
-  //                   paymentCustomerId: invoice.customerId,
-  //                   paymentAmount: invoice.amount,
-  //                   customerName: invoice.customerName,
-  //                   invoiceNumber: invoice.invoiceNumber,
-  //                   date: invoice.date,
-  //                   amountReceived: '',
-  //                   discount: invoice.discount,
-  //                   totalAmount: invoice.totalAmount,
-  //                   paidAmount: invoice.paidAmount))));
-  // }
 }

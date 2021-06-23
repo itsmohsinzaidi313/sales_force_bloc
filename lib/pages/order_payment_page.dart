@@ -14,6 +14,7 @@ class OrderPaymenPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool requestSubmitted = false;
     return BlocListener<VerboseBloc, VerboseState>(
       listenWhen: (previous, current) => current is VerboseSnackBarState,
       listener: (context, state) {
@@ -28,6 +29,8 @@ class OrderPaymenPage extends StatelessWidget {
           } else if (state is OrderSavedState) {
             AppTheme.snackbar(context, state.message);
             if (state.orderSaved) {
+              requestSubmitted = false;
+              AppTheme.snackbar(context, 'Order saved.');
               Navigator.of(context)
                   .pushNamedAndRemoveUntil('/menu', (route) => false);
             }
@@ -118,10 +121,10 @@ class OrderPaymenPage extends StatelessWidget {
                     Expanded(
                       child: ListView.builder(
                           shrinkWrap: true,
-                          itemCount: state.customerOrder.cartItems.length,
+                          itemCount: state.customerOrder.items.length,
                           itemBuilder: (BuildContext context, int index) =>
                               getWidget(context,
-                                  state.customerOrder.cartItems[index])),
+                                  state.customerOrder.items[index])),
                     ),
                   ])),
                   ButtonBar(
@@ -132,18 +135,27 @@ class OrderPaymenPage extends StatelessWidget {
                         child: AppTheme.roundElevatedButton(
                             text: 'Add Discount',
                             onPressed: () =>
-                                showUserDiscountDialog(context, state)),
+                                showUserDiscountDialog(context, state),),
                       ),
                       Center(
                         child: AppTheme.roundElevatedButton(
                           text: 'Take Order',
-                          onPressed: () => AppTheme.showAlertDialogYN(context,
-                                  title: 'Attention', message: 'Are you sure?')
-                              .then(
-                            (value) => value != null && value
-                                ? passEvent(context, SubmitOrder())
-                                : Navigator.of(context).pop(),
-                          ),
+                          onPressed: () async {
+                            bool value = await AppTheme.showAlertDialogYN(
+                                context,
+                                title: 'Attention',
+                                message: 'Are you sure?');
+                            if (value && value != null) {
+                              if (!requestSubmitted) {
+                                requestSubmitted = true;
+                                passEvent(context, SubmitOrder());
+                              } else {
+                                AppTheme.snackbar(context, 'Please wait...');
+                              }
+                            } else {
+                              Navigator.of(context).pop();
+                            }
+                          },
                         ),
                       ),
                     ],

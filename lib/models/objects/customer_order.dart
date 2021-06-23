@@ -15,7 +15,7 @@ class Order {
   String receivable;
   User user;
   PAYMENTMODE paymentmode;
-  List<Product> get cartItems => items ?? [];
+  // List<Product> get cartItems => items ?? [];
 
   void setQuantity(String productId, int quantity) {
     items.where((p) => p.productId == productId).first.quantity = quantity;

@@ -76,7 +76,7 @@ class _ChequePaymentState extends State<ChequePayment> {
     );
   }
 
-  showChequePayment() {
+  Widget showChequePayment() {
     return Column(
       verticalDirection: VerticalDirection.down,
       children: <Widget>[

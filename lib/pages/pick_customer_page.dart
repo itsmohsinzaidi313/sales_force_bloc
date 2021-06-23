@@ -170,7 +170,7 @@ class PickCustomer extends StatelessWidget {
       Row(
         children: <Widget>[
           AppTheme.recElevatedButton(
-            text: 'Cash',
+            text: 'Order',
             onPressed: () => passEvent(
               context,
               CustomerSelected(
@@ -179,18 +179,18 @@ class PickCustomer extends StatelessWidget {
           ),
         ],
       ),
-      Row(
-        children: <Widget>[
-          AppTheme.recElevatedButton(
-            text: 'Credit',
-            onPressed: () => passEvent(
-              context,
-              CustomerSelected(
-                  customer: customer, paymentmode: PAYMENTMODE.CREDIT),
-            ),
-          ),
-        ],
-      ),
+      // Row(
+      //   children: <Widget>[
+      //     AppTheme.recElevatedButton(
+      //       text: 'Credit',
+      //       onPressed: () => passEvent(
+      //         context,
+      //         CustomerSelected(
+      //             customer: customer, paymentmode: PAYMENTMODE.CREDIT),
+      //       ),
+      //     ),
+      //   ],
+      // ),
     ];
   }
 

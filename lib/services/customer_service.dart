@@ -34,7 +34,7 @@ class SUploadCustomer extends ServiceCommon {
             '${TableCustomer.userId}',
             '${TableCustomer.firstName}',
             '${TableCustomer.lastName}',
-            '${TableCustomer.mobile} as customer_mobile',
+            '${TableCustomer.mobile}',
             '${TableCustomer.shopName}',
             '${TableCustomer.address}',
             '${TableCustomer.shopLat}',
@@ -43,7 +43,7 @@ class SUploadCustomer extends ServiceCommon {
           where: '${TableCustomer.status} = ?',
           whereArgs: [0]);
 
-      list.forEach((e) async {
+        for (var e in list) {
         log(jsonEncode(e), name: this.name);
         log(Config.createCustomerAPILink, name: this.name);
         bool x = await Library.uploadToServer(Config.createCustomerAPILink,
@@ -53,7 +53,7 @@ class SUploadCustomer extends ServiceCommon {
               where: '${TableCustomer.id} = ?',
               whereArgs: [e['android_customer_id']]);
         }
-      });
+      }
     } catch (e) {
       log('>>>ERROR ON CUSTOMER UPLOAD SERVICE\n$e');
     }

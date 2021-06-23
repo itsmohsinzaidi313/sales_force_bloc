@@ -51,9 +51,13 @@ class SSyncService extends ServiceCommon {
     dateTime = new DateTime(dateTime.year, dateTime.month, dateTime.day - 1);
     String url =
         '${Config.syncAPILink}${DateFormat('yyyy-MM-dd,HH:mm:ss').format(dateTime)}';
-    Response response = await get(Uri.parse(url)).timeout(
-        Duration(seconds: Config.ConnectionTimeout),
-        onTimeout: () => null);
+    Response response = await get(Uri.parse(url))
+        .timeout(Duration(seconds: Config.ConnectionTimeout),
+            onTimeout: () => null)
+        .onError((error, stackTrace) {
+      log('Error', error: error, name: this.name);
+      return null;
+    });
     if (response != null && response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
       if (data['data'] != null) {
@@ -65,7 +69,6 @@ class SSyncService extends ServiceCommon {
               whereArgs: [element['sync_id']]);
           if (list == null || list.isEmpty) {
             SyncPacket packet = SyncPacket.fromMap(element);
-            // server_id, module, operation, url, createdon, is_used
             await db.insert(TableSyncApis.tableName, {
               TableSyncApis.serverId: packet.serverId,
               TableSyncApis.module: packet.module,
@@ -86,10 +89,13 @@ class SSyncService extends ServiceCommon {
     try {
       await getSyncApis();
       List<SyncPacket> list = await getApis();
-      list.forEach((e) async {
+      for (var e in list) {
         Response response = await get(Uri.parse(e.url)).timeout(
             Duration(seconds: Config.ConnectionTimeout), onTimeout: () {
           log('CONNECTION TIMEOUT\nSYNC FAILED');
+          return null;
+        }).onError((error, stackTrace) {
+          log('Error', name: this.name, error: error);
           return null;
         });
         if (response != null && response.statusCode == 200) {
@@ -146,7 +152,8 @@ class SSyncService extends ServiceCommon {
         } else {
           log('NO RESPONSE RECEIVED. STATUS CODE: ${response.statusCode}. SYNC FAILED');
         }
-      });
+      }
+      ;
     } catch (e) {
       log('ERROR ON SYNC SERVICE syncData', error: e);
     }
@@ -181,12 +188,26 @@ class SSyncService extends ServiceCommon {
     try {
       List<Map<String, dynamic>> list = await db.query(TableCustomer.tableName,
           columns: [TableCustomer.id],
-          where: '${TableCustomer.customerId} = ?',
-          whereArgs: [customer.customerId]);
+          where:
+              '${TableCustomer.mobile} = ? and ${TableCustomer.firstName} = ? and ${TableCustomer.lastName} = ? and ${TableCustomer.address} = ?',
+          whereArgs: [
+            customer.mobile,
+            customer.firstName,
+            customer.lastName,
+            customer.address,
+          ]);
       if (list == null || list.isEmpty) {
         await db.insert(TableCustomer.tableName, customer.getMap());
         this.verboseBloc.add(VerboseNotify(message: 'Customer Added'));
       }
+      // else {
+      //   await db.update(
+      //     TableCustomer.tableName,
+      //     {TableCustomer.customerId: customer.customerId},
+      //     where: '${TableCustomer.mobile} = ? and ${TableCustomer.firstName} = ?',
+      //     whereArgs: [customer.mobile, customer.firstName],
+      //   );
+      // }
       updateSyncApiStatus(serverId);
       log('CUSTOMER ADDED');
     } catch (e) {
@@ -224,7 +245,7 @@ class SSyncService extends ServiceCommon {
             whereArgs: [category.categoryId]);
         categoryPermissions.forEach((element) async => await db.insert(
             TableCategoryPermissions.tableName, element.getMap()));
-            this.verboseBloc.add(VerboseNotify(message: 'Category Updated'));
+        this.verboseBloc.add(VerboseNotify(message: 'Category Updated'));
       }
       updateSyncApiStatus(serverId);
       log('CATEGORY UPDATED');
@@ -249,7 +270,7 @@ class SSyncService extends ServiceCommon {
               whereArgs: [product.productId]);
           listProductPrices.forEach((element) async => await db.insert(
               TableProductPrices.tableName, element.getMapForInsert()));
-              this.verboseBloc.add(VerboseNotify(message: 'Product Added'));
+          this.verboseBloc.add(VerboseNotify(message: 'Product Added'));
         }
       }
       log('PRODUCT ADDED');
@@ -272,7 +293,7 @@ class SSyncService extends ServiceCommon {
             whereArgs: [product.productId]);
         productPrices.forEach((element) async => await db.insert(
             TableProductPrices.tableName, element.getMapForInsert()));
-            this.verboseBloc.add(VerboseNotify(message: 'Product Updated'));
+        this.verboseBloc.add(VerboseNotify(message: 'Product Updated'));
       }
       updateSyncApiStatus(serverId);
       log('PRODUCT UPDATED');
@@ -296,7 +317,7 @@ class SSyncService extends ServiceCommon {
             whereArgs: [category.categoryId]);
         categoryPermissions.forEach((element) async => await db.insert(
             TableCategoryPermissions.tableName, element.getMap()));
-            this.verboseBloc.add(VerboseNotify(message: 'Category Added'));
+        this.verboseBloc.add(VerboseNotify(message: 'Category Added'));
       }
       updateSyncApiStatus(serverId);
       log('CATEGORY UPDATED');
