@@ -59,31 +59,33 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-  - images/calendar.png
-  - images/green-button-original.png
-  - images/green-button-transparent.png
-  - images/red-button-original.png
-  - images/red-button-transparent.png
-  - images/plus.png
-  - images/shopping_cart.png
-  - images/newSale.png
-  - images/viewSale.png
-  - images/visits.png
-  - images/viewInvoices.png
-  - images/viewLocation.png
-  - images/newSale1.png
-  - images/newSale2.png
-  - images/salesPattern1.jpg
-  - images/salesPattern2.jpg
-  - images/salesPattern3.jpg
-  - images/salesPattern4.jpg
-  - images/sync.png
-  - images/icon2.jpg
+  # - images/calendar.png
+  # - images/green-button-original.png
+  # - images/green-button-transparent.png
+  # - images/red-button-original.png
+  # - images/red-button-transparent.png
+  # - images/plus.png
+  # - images/shopping_cart.png
+  # - images/newSale.png
+  # - images/viewSale.png
+  # - images/visits.png
+  # - images/viewInvoices.png
+  # - images/viewLocation.png
+  # - images/newSale1.png
+  # - images/newSale2.png
+  # - images/salesPattern1.jpg
+  # - images/salesPattern2.jpg
+  # - images/salesPattern3.jpg
+  # - images/salesPattern4.jpg
+  # - images/sync.png
+  # - images/icon2.jpg
   - devaj_logo_large.png
   - devaj_logo_small.png
   - devaj_theme_bg.jpg
   - ddf_logo.png
   - images/placeholder.png
+  - jade_logo.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

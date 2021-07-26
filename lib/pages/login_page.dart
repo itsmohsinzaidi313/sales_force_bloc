@@ -121,7 +121,10 @@ class LoginButton extends StatelessWidget {
   final String email;
   LoginButton({@required this.email});
   // final Image logo = Image.asset('images/icon2.jpg');
-  final Image logo = Image.asset('images/devaj_logo_small.png');
+  final Image logo = Image.asset(
+    'images/jade_logo.png',
+    scale: 4,
+  );
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -148,7 +151,7 @@ class LoginButton extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Center(
-                      child: AppTheme.roundElevatedButton(
+                      child: AppTheme.recElevatedButton(
                     text: 'Sign in',
                     onPressed: () => context
                         .read<LoginBloc>()
@@ -166,7 +169,10 @@ class LoginButton extends StatelessWidget {
 
 class LoginFields extends StatelessWidget {
   // final Image logo = Image.asset('images/icon2.jpg');
-  final Image logo = Image.asset('images/devaj_logo_small.png');
+  final Image logo = Image.asset(
+    'images/jade_logo.png',
+    scale: 4,
+  );
   final user = User();
   @override
   Widget build(BuildContext context) {
@@ -207,18 +213,11 @@ class LoginFields extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.blue),
-                        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0)))),
-                    child: Text(
-                      'Sign in',
-                      style: TextStyle(color: Colors.white, fontSize: 25.0),
-                    ),
-                    onPressed: () => context
-                        .read<LoginBloc>()
-                        .add(LoginSubmit(user: this.user)),
+                  child: AppTheme.recElevatedButton(
+                    text: 'Sign In',
+                    onPressed: () => context.read<LoginBloc>().add(
+                          LoginSubmit(user: this.user),
+                        ),
                   ),
                 ),
               ],

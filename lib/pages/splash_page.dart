@@ -26,8 +26,8 @@ class SplashPage extends StatelessWidget {
             children: [
               Center(
                   child: Image.asset(
-                'images/devaj_logo_small.png',
-                scale: 1,
+                'images/jade_logo.png',
+                scale: 4,
               )),
             ],
           ),
@@ -87,15 +87,15 @@ class SplashPage extends StatelessWidget {
               ],
             ),
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: [
-          //     Image.asset(
-          //       'images/devaj_logo_small.png',
-          //       scale: 2,
-          //     ),
-          //   ],
-          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Image.asset(
+                'images/devaj_logo_small.png',
+                scale: 2,
+              ),
+            ],
+          ),
         ],
       ),
     );
