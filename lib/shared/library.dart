@@ -137,7 +137,7 @@ class Library {
         if (x) {
           await Future.delayed(Duration(seconds: 2));
           context.read<VerboseBloc>().add(
-              VerboseNewEvent(title: '', message: 'Installation successful.'));
+              VerboseNewEvent(title: '', message: 'Installation successful.'),);
           log('Installation completed', name: 'Library.install');
           // try {
           //   final syncImport =

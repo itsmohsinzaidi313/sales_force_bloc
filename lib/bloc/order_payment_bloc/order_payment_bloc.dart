@@ -12,6 +12,8 @@ class OrderPaymentBloc extends Bloc<OrderPaymentEvent, OrderPaymentState> {
   OrderPaymentBloc() : super(OrderPaymentInitial());
   Order customerOrder = Order();
   String tempDiscount = '0';
+  bool requestSubmitted = false;
+  final List<String> orderTypes = ['IMT', 'LMT', 'GT'];
   @override
   Stream<OrderPaymentState> mapEventToState(
     OrderPaymentEvent event,
@@ -41,18 +43,30 @@ class OrderPaymentBloc extends Bloc<OrderPaymentEvent, OrderPaymentState> {
           yield ValidDiscount();
         }
       } else if (event is SubmitOrder) {
-        if (customerOrder.items.isNotEmpty) {
-          final status = await OrdersRepo.repo.saveOrder(customerOrder);
-          String message;
-          if (status) {
-            message = 'Order Saved';
+        if (!requestSubmitted) {
+          if (customerOrder.items.isNotEmpty &&
+              customerOrder.orderType != null &&
+              customerOrder.orderType != 0) {
+            requestSubmitted = true;
+            final status = await OrdersRepo.repo.saveOrder(customerOrder);
+            String message;
+            if (status) {
+              message = 'Order Saved';
+            } else {
+              message = 'Order cannot be saved';
+            }
+            requestSubmitted = false;
+            yield OrderSavedState(orderSaved: status, message: message);
           } else {
-            message = 'Order cannot be saved';
+            requestSubmitted = false;
+            yield OrderPaymentErrorState(
+                message: 'No items in cart or order type is not selected.');
           }
-          yield OrderSavedState(orderSaved: status, message: message);
         } else {
-          yield OrderPaymentErrorState(message: 'Not items in cart');
+          yield OrderPaymentErrorState(message: 'Please wait...');
         }
+      } else if (event is OrderTypeChanged) {
+        customerOrder.orderType = orderTypes.indexOf(event.orderType) + 1;
       }
     } catch (e) {
       yield OrderPaymentErrorState(message: e.toString());

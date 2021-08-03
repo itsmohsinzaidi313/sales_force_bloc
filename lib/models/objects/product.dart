@@ -93,7 +93,7 @@ class Product {
     this._customerGroupPrices = i[0]['customer_group_prices'];
   }
 
-  getCustomerGroupPrices() {
+  List<ProductPrices> getCustomerGroupPrices() {
     List<ProductPrices> list = [];
     if (_customerGroupPrices != null)
       _customerGroupPrices.forEach((e) {
@@ -126,41 +126,42 @@ class Product {
     ];
   }
 
-  add() {
+  void add() {
     this.quantity++;
   }
 
-  less() {
+  void less() {
     int difference = this.quantity - 1;
     if (difference >= 0) {
       quantity--;
     }
   }
 
-  addFoc() {
+  void addFoc() {
     this.focQuantity++;
   }
 
-  lessFoc() {
+  void lessFoc() {
     int difference = this.focQuantity - 1;
     if (difference >= 0) {
       focQuantity--;
     }
   }
 
-  setQuantity(int quantity) {
+  void setQuantity(int quantity) {
     this.quantity = quantity;
   }
 
-  setFocQuantity(int focQuantity) {
+  void setFocQuantity(int focQuantity) {
     this.focQuantity = focQuantity;
   }
 
-  getPrice() {
-    return double.parse(packPrice) * quantity;
+  double getPrice() {
+    return double.parse(
+        (double.parse(packPrice) * quantity).toStringAsFixed(2));
   }
 
-  getNetworkImage() {
+  String getNetworkImage() {
     if (this.image == null || this.image == '')
       return '';
     // return 'https://www.freeiconspng.com/uploads/no-image-icon-23.jpg';

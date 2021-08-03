@@ -32,7 +32,7 @@ class Category {
     List<CategoryPermissions> list = [];
     _salesman.forEach((e) {
       list.add(CategoryPermissions(
-          categoryId: e['product_category_id'], userId: e['user_id']));
+          categoryId: int.parse(e['product_category_id'] ?? '0'), userId: int.parse(e['user_id'] ?? '0')));
     });
     return list;
   }

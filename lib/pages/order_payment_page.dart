@@ -5,16 +5,19 @@ import 'package:sales_force/bloc/verbose_bloc/verbose_bloc.dart';
 import 'package:sales_force/models/objects/customer_order.dart';
 import 'package:sales_force/models/objects/product.dart';
 import 'package:sales_force/shared/app_theme.dart';
+import 'package:sales_force/shared/config.dart';
+import 'package:sales_force/shared/widgets/custom_drop_down.dart';
 
 class OrderPaymenPage extends StatelessWidget {
   final double titleFontSize = 18;
   final double rowSpacing = 8.0;
   final Order customerOrder;
+  final List<String> orderTypes = ['Select', 'IMT', 'LMT', 'GT'];
   OrderPaymenPage({this.customerOrder});
 
   @override
   Widget build(BuildContext context) {
-    bool requestSubmitted = false;
+    String selectedValue = orderTypes.first;
     return BlocListener<VerboseBloc, VerboseState>(
       listenWhen: (previous, current) => current is VerboseSnackBarState,
       listener: (context, state) {
@@ -29,7 +32,6 @@ class OrderPaymenPage extends StatelessWidget {
           } else if (state is OrderSavedState) {
             AppTheme.snackbar(context, state.message);
             if (state.orderSaved) {
-              requestSubmitted = false;
               AppTheme.snackbar(context, 'Order saved.');
               Navigator.of(context)
                   .pushNamedAndRemoveUntil('/menu', (route) => false);
@@ -104,6 +106,49 @@ class OrderPaymenPage extends StatelessWidget {
                                 fontSize: titleFontSize)
                           ]),
                           SizedBox(height: rowSpacing),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: AppTheme.text(
+                                text: 'Order Type:',
+                                fontSize: titleFontSize,
+                              )),
+                              Container(
+                                width: Config.deviceDisplayWidth(context) * 0.3,
+                                child: StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return Align(
+                                      alignment: Alignment.centerRight,
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton(
+                                          value: selectedValue,
+                                          items: orderTypes
+                                              .map(
+                                                (e) => DropdownMenuItem(
+                                                  value: e,
+                                                  child: Text(e),
+                                                ),
+                                              )
+                                              .toList(),
+                                          onChanged: (value) {
+                                            selectedValue = value;
+                                            setState(() {
+                                              passEvent(
+                                                context,
+                                                OrderTypeChanged(
+                                                  orderType: value,
+                                                ),
+                                              );
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
                           Row(children: <Widget>[
                             Expanded(
                                 child: AppTheme.text(
@@ -123,8 +168,8 @@ class OrderPaymenPage extends StatelessWidget {
                           shrinkWrap: true,
                           itemCount: state.customerOrder.items.length,
                           itemBuilder: (BuildContext context, int index) =>
-                              getWidget(context,
-                                  state.customerOrder.items[index])),
+                              getWidget(
+                                  context, state.customerOrder.items[index])),
                     ),
                   ])),
                   ButtonBar(
@@ -133,9 +178,10 @@ class OrderPaymenPage extends StatelessWidget {
                     children: [
                       Center(
                         child: AppTheme.roundElevatedButton(
-                            text: 'Add Discount',
-                            onPressed: () =>
-                                showUserDiscountDialog(context, state),),
+                          text: 'Add Discount',
+                          onPressed: () =>
+                              showUserDiscountDialog(context, state),
+                        ),
                       ),
                       Center(
                         child: AppTheme.roundElevatedButton(
@@ -146,12 +192,7 @@ class OrderPaymenPage extends StatelessWidget {
                                 title: 'Attention',
                                 message: 'Are you sure?');
                             if (value && value != null) {
-                              if (!requestSubmitted) {
-                                requestSubmitted = true;
-                                passEvent(context, SubmitOrder());
-                              } else {
-                                AppTheme.snackbar(context, 'Please wait...');
-                              }
+                              passEvent(context, SubmitOrder());
                             } else {
                               Navigator.of(context).pop();
                             }

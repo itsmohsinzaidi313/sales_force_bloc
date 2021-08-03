@@ -181,7 +181,7 @@ class ImportData {
         TableCategories.createdOn: item['createdon'],
         TableCategories.modifiedOn: item['modifiedon'],
       });
-      getCategoryPermissionsList(item['salesman'], db);
+      await getCategoryPermissionsList(item['salesman'] ?? [], db);
     }
   }
 
@@ -243,7 +243,7 @@ class ImportData {
         TableProducts.modifiedon: item['modifiedon'],
         TableProducts.image: item['product_image'],
       });
-      getProductFoc(item['foc_slab'], db);
+      await getProductFoc(item['foc_slab'], db);
     }
   }
 

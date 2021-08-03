@@ -56,32 +56,4 @@ class TableUsers extends SqlCommons {
     SqlCommons.TEXT,
     SqlCommons.TEXT,
   ];
-
-  @override
-  Future<int> delete(object) async {
-    int rowCount = 0;
-    object.forEach((user) {
-      database.delete(this.dbTableName,
-          where: '${columns[1]} = ?', whereArgs: [user.userId]);
-    });
-    return rowCount;
-  }
-
-  @override
-  Future<bool> insert(object) async {
-    // TODO: implement insert
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> select(object) async {
-    // TODO: implement select
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> update(object) async {
-    // TODO: implement update
-    throw UnimplementedError();
-  }
 }

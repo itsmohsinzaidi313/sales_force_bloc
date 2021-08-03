@@ -109,17 +109,17 @@ class SSyncService extends ServiceCommon {
             if (e.module == 'invoice') {
               Invoice invoice = new Invoice.withMap(data['invoices']);
               if (e.operation == 'insert') {
-                insertInvoice(db, invoice, e.serverId);
+                await insertInvoice(db, invoice, e.serverId);
               }
             }
             // CUSTOMERS
             else if (e.module == 'customer') {
               Customer customer = new Customer.withMap(data['customers']);
               if (e.operation == 'create') {
-                insertCustomer(db, customer, e.serverId);
+                await insertCustomer(db, customer, e.serverId);
               }
               if (e.operation == 'update')
-                updateCustomer(db, customer, e.serverId);
+                await updateCustomer(db, customer, e.serverId);
             }
             // USERS
             else if (e.module == 'user') {
@@ -131,21 +131,21 @@ class SSyncService extends ServiceCommon {
             else if (e.module == 'category') {
               Category category = new Category.withMap(data['categories']);
               if (e.operation == 'insert') {
-                insertCategory(db, category, category.getCategoryPermissions(),
-                    e.serverId);
+                await insertCategory(db, category,
+                    category.getCategoryPermissions(), e.serverId);
               } else if (e.operation == 'update') {
-                updateCategory(db, category, category.getCategoryPermissions(),
-                    e.serverId);
+                await updateCategory(db, category,
+                    category.getCategoryPermissions(), e.serverId);
               }
             }
             // PRODUCTS
             else if (e.module == 'product') {
               Product product = new Product.withMap(data['products']);
               if (e.operation == 'insert') {
-                insertProduct(
+                await insertProduct(
                     db, product, product.getCustomerGroupPrices(), e.serverId);
               } else if (e.operation == 'update')
-                updateProduct(
+                await updateProduct(
                     db, product, product.getCustomerGroupPrices(), e.serverId);
             }
           }
@@ -153,7 +153,6 @@ class SSyncService extends ServiceCommon {
           log('NO RESPONSE RECEIVED. STATUS CODE: ${response.statusCode}. SYNC FAILED');
         }
       }
-      ;
     } catch (e) {
       log('ERROR ON SYNC SERVICE syncData', error: e);
     }
@@ -174,9 +173,9 @@ class SSyncService extends ServiceCommon {
           whereArgs: [invoice.invoiceNumber]);
       if (list == null || list.isEmpty) {
         await db.insert(TableInvoices.tableName, invoice.getMapForInsert());
-        this.verboseBloc.add(VerboseNotify(message: 'Invoice Added'));
+        this.verboseBloc.add(VerboseNotify(message: 'INVOICE ADDED'));
       }
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       log('INVOICE ADDED');
     } catch (e) {
       log('NEW INVOICE INSERT FAILED', error: e);
@@ -198,7 +197,7 @@ class SSyncService extends ServiceCommon {
           ]);
       if (list == null || list.isEmpty) {
         await db.insert(TableCustomer.tableName, customer.getMap());
-        this.verboseBloc.add(VerboseNotify(message: 'Customer Added'));
+        this.verboseBloc.add(VerboseNotify(message: 'CUSTOMER ADDED'));
       }
       // else {
       //   await db.update(
@@ -208,7 +207,7 @@ class SSyncService extends ServiceCommon {
       //     whereArgs: [customer.mobile, customer.firstName],
       //   );
       // }
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       log('CUSTOMER ADDED');
     } catch (e) {
       log('NEW CUSTOMER INSERT FAILED', error: e);
@@ -225,10 +224,10 @@ class SSyncService extends ServiceCommon {
         await db.insert(TableUsers.tableName, user.getMap());
         this.verboseBloc.add(VerboseNotify(message: 'User Added'));
       }
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       log('USER ADDED');
     } catch (e) {
-      log('NEW USER INSERT FAILED', error: e);
+      log('USER ADD FAILED', error: e);
     }
   }
 
@@ -247,7 +246,7 @@ class SSyncService extends ServiceCommon {
             TableCategoryPermissions.tableName, element.getMap()));
         this.verboseBloc.add(VerboseNotify(message: 'Category Updated'));
       }
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       log('CATEGORY UPDATED');
     } catch (e) {
       log('CATEGORY UPDATE FAILED', error: e);
@@ -274,7 +273,7 @@ class SSyncService extends ServiceCommon {
         }
       }
       log('PRODUCT ADDED');
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
     } catch (e) {
       log('PRODUCT INSERT FAILED', error: e);
     }
@@ -295,7 +294,7 @@ class SSyncService extends ServiceCommon {
             TableProductPrices.tableName, element.getMapForInsert()));
         this.verboseBloc.add(VerboseNotify(message: 'Product Updated'));
       }
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       log('PRODUCT UPDATED');
     } catch (e) {
       log('PRODUCT UPDATE FAILED', error: e);
@@ -319,10 +318,10 @@ class SSyncService extends ServiceCommon {
             TableCategoryPermissions.tableName, element.getMap()));
         this.verboseBloc.add(VerboseNotify(message: 'Category Added'));
       }
-      updateSyncApiStatus(serverId);
-      log('CATEGORY UPDATED');
+      await updateSyncApiStatus(serverId);
+      log('CATEGORY ADDED');
     } catch (e) {
-      log('CATEGORY UPDATE FAILED', error: e);
+      log('CATEGORY ADD FAILED', error: e);
     }
   }
 
@@ -330,7 +329,7 @@ class SSyncService extends ServiceCommon {
     try {
       await db.update(TableUsers.tableName, user.getMap(),
           where: '${TableUsers.userId} = ?', whereArgs: [user.userId]);
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       this.verboseBloc.add(VerboseNotify(message: 'User Updated'));
       log('USER UPDATED');
     } catch (e) {
@@ -344,7 +343,7 @@ class SSyncService extends ServiceCommon {
       await db.update(TableCustomer.tableName, customer.getMap(),
           where: '${TableCustomer.customerId} = ?',
           whereArgs: [customer.customerId]);
-      updateSyncApiStatus(serverId);
+      await updateSyncApiStatus(serverId);
       this.verboseBloc.add(VerboseNotify(message: 'Customer Updated'));
       log('CUSTOMER UPDATED');
     } catch (e) {

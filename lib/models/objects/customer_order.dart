@@ -13,6 +13,7 @@ class Order {
   String discountPercent;
   String discountAmount;
   String receivable;
+  int orderType;
   User user;
   PAYMENTMODE paymentmode;
   // List<Product> get cartItems => items ?? [];
@@ -104,6 +105,7 @@ class Order {
         TableOrderMaster.amount: receivable,
         TableOrderMaster.discount: discountAmount,
         TableOrderMaster.total: totalAmount,
+        TableOrderMaster.orderType: orderType,
         TableOrderMaster.status: 0,
         TableOrderMaster.deliveryDate: Library.getDate(),
         TableOrderMaster.spoDiscount: discountPercent,

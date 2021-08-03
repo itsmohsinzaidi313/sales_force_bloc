@@ -13,3 +13,8 @@ class DiscountChanged extends OrderPaymentEvent {
 class AddDiscount extends OrderPaymentEvent {}
 
 class SubmitOrder extends OrderPaymentEvent {}
+
+class OrderTypeChanged extends OrderPaymentEvent {
+  final String orderType;
+  OrderTypeChanged({this.orderType});
+}

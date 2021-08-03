@@ -52,10 +52,10 @@ abstract class SqlCommons {
 
   Future<void> deleteTable() async {
     if (!skipDelete) {
-      log('TABLE $dbTableName DELETED', name: 'SqlCommons');
       int rowsAffected = await database.delete(dbTableName);
+      log('TABLE $dbTableName DELETED($rowsAffected)', name: 'SqlCommons');
       bloc.add(VerboseNewEvent(
-          title: 'SqlCommons', message: 'Table deleted $dbTableName'));
+          title: 'SqlCommons', message: 'Table deleted $dbTableName($rowsAffected)'));
       // return rowsAffected;
     } else {
       log('TABLE $dbTableName DELETE SKIPPED', name: 'SqlCommons');

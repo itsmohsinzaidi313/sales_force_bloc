@@ -35,6 +35,7 @@ class SPostOrder extends ServiceCommon {
           TableOrderMaster.customerId,
           TableOrderMaster.amount,
           TableOrderMaster.discount,
+          TableOrderMaster.orderType,
           TableOrderMaster.total,
           TableOrderMaster.status,
           TableOrderMaster.deliveryDate,

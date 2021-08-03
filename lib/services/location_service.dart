@@ -42,9 +42,9 @@ class SPostLocation extends ServiceCommon {
         TableLocation.lat: position.latitude,
         TableLocation.long: position.longitude,
       });
-      log('LOCATION RECORDED');
+      log('LOCATION RECORDED', name: name);
     } else {
-      log('FAULT ON uploadLocation CANNOT GET DEVICE LOCATION');
+      log('FAULT ON uploadLocation CANNOT GET DEVICE LOCATION', name: name);
     }
   }
 
@@ -65,7 +65,7 @@ class SPostLocation extends ServiceCommon {
         await db.delete(TableLocation.tableName,
             where: '${TableLocation.id} = ?',
             whereArgs: [element[TableLocation.id]]);
-        log('LOCATION UPLOADED');
+        log('LOCATION UPLOADED', name: name);
       }
     });
     cycleComplete = true;

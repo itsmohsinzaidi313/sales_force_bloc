@@ -85,14 +85,14 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  static const List<String> choices = [/* Reinstall, */ Update];
+  static const List<String> choices = [/* Reinstall, */ _UPDATE];
   // static const String Reinstall = 'Reinstall';
-  static const String Update = 'Update';
+  static const String _UPDATE = 'Update';
 
   void choiceAction(String choice, BuildContext context) {
     Library.hasServerAccess().then((value) {
       if (value) {
-        if (choice == Update) {
+        if (choice == _UPDATE) {
           Library.install(context, forceUpdate: true);
         }
         VerboseWidgets(context: context).showVerboseDialog();
